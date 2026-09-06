@@ -43,7 +43,7 @@
     </div>
 
     <div class="chat-container" id="chatContainer">
-        <div class="message">Mobile client UI optimized. Ready for input.</div>
+        <div class="message">Mobile client UI optimized. Supabase bridge ready.</div>
     </div>
 
     <div class="input-container">
@@ -52,9 +52,12 @@
     </div>
 
     <script>
-        const SUPABASE_URL = '';
-        const SUPABASE_ANON_KEY = '';
-        const supabaseClient = (SUPABASE_URL && SUPABASE_ANON_KEY) ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+        const SUPABASE_URL = 'YOUR_SUPABASE_PROJECT_URL';
+        const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+        
+        const supabaseClient = (SUPABASE_URL && SUPABASE_ANON_KEY !== 'YOUR_SUPABASE_ANON_KEY') 
+            ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) 
+            : null;
 
         function handleKey(e) {
             if (e.key === 'Enter') sendMessage();
@@ -65,7 +68,7 @@
             sendMessage();
         }
 
-        function sendMessage() {
+        async function sendMessage() {
             const input = document.getElementById('userInput');
             const container = document.getElementById('chatContainer');
             const text = input.value.trim();
@@ -84,6 +87,14 @@
             
             input.value = '';
             container.scrollTop = container.scrollHeight;
+
+            if (supabaseClient && text.startsWith('/')) {
+                try {
+                    console.log("Supabase active, handling command:", text);
+                } catch (err) {
+                    console.error("Supabase error:", err);
+                }
+            }
 
             setTimeout(() => {
                 const aiMsg = document.createElement('div');
