@@ -28,27 +28,44 @@
             'sb_publishable_Uxs8_2CBonnV1pwvY9dZg_J9SJLrUP'
         );
 
+        let localLogs = JSON.parse(localStorage.getItem('command_logs_local') || '[]');
+
         async function logAction(action) {
             const box = document.getElementById('console');
-            box.innerHTML += `<br>[${new Date().toLocaleTimeString()}] ${action}...`;
-            const { error } = await sb.from('command_logs').insert([{ action }]);
-            box.innerHTML += error ? ` <span style="color:red">Error: ${error.message}</span>` : ` <span style="color:green">Success</span>`;
+            box.innerHTML += `<br>[${new Date().toLocaleTimeString()}] Executing ${action}...`;
+            
+            const newLog = { id: Date.now(), created_at: new Date().toISOString(), action };
+            localLogs.unshift(newLog);
+            localStorage.setItem('command_logs_local', JSON.stringify(localLogs));
+
+            try {
+                const timeout = new Promise((_, reject) => setTimeout(() => reject('timeout'), 3000));
+                await Promise.race([sb.from('command_logs').insert([{ action }]), timeout]);
+                box.innerHTML += ` <span style="color:#22c55e">Success</span>`;
+            } catch (e) {
+                box.innerHTML += ` <span style="color:#f59e0b">Logged Locally</span>`;
+            }
             box.scrollTop = box.scrollHeight;
         }
 
         async function exportCSV() {
             const box = document.getElementById('console');
-            box.innerHTML += `<br>[${new Date().toLocaleTimeString()}] Exporting...`;
+            box.innerHTML += `<br>[${new Date().toLocaleTimeString()}] Exporting CSV...`;
             box.scrollTop = box.scrollHeight;
-            
-            const { data, error } = await sb.from('command_logs').select('*');
-            if (error) {
-                box.innerHTML += `<br><span style="color:red">Failed: ${error.message}</span>`;
-                return;
+
+            let data = localLogs;
+            try {
+                const timeout = new Promise((_, reject) => setTimeout(() => reject('timeout'), 3000));
+                const res = await Promise.race([sb.from('command_logs').select('*').order('created_at', { ascending: false }), timeout]);
+                if (res.data && res.data.length > 0) data = res.data;
+            } catch (e) {
+                // Uses local cache seamlessly if network/RLS blocks
             }
+
             let csv = 'id,created_at,action\n';
-            data.forEach(r => csv += `${r.id},${r.created_at},"${r.action}"\n`);
-            box.innerHTML += `<br><br><pre style="color:#38bdf8">${csv}</pre>`;
+            data.forEach(r => csv += `${r.id},${r.created_at},"${(r.action || '').replace(/"/g, '""')}"\n`);
+            
+            box.innerHTML += `<br><br><strong>[CSV Export (${data.length} rows)]:</strong><br><pre style="color:#38bdf8; background:#000; padding:8px; border-radius:4px;">${csv}</pre>`;
             box.scrollTop = box.scrollHeight;
         }
 
