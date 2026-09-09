@@ -6,166 +6,55 @@
     <title>3KIG Command Center</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: #0f172a;
-            color: #f8fafc;
-            margin: 0;
-            padding: 16px;
-        }
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: #1e293b;
-            padding: 12px 16px;
-            border-radius: 8px;
-            margin-bottom: 16px;
-        }
-        .quick-actions {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 16px;
-            overflow-x: auto;
-            padding-bottom: 4px;
-        }
-        .chip {
-            background: #334155;
-            color: #f8fafc;
-            border: none;
-            padding: 8px 14px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            cursor: pointer;
-            white-space: nowrap;
-        }
-        .chip:hover {
-            background: #475569;
-        }
-        .console-output {
-            background: #020617;
-            border: 1px solid #1e293b;
-            border-radius: 8px;
-            padding: 12px;
-            font-family: monospace;
-            font-size: 0.9rem;
-            height: 300px;
-            overflow-y: auto;
-        }
+        body { font-family: sans-serif; background: #0f172a; color: #f8fafc; padding: 16px; margin: 0; }
+        header { display: flex; justify-content: space-between; background: #1e293b; padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; }
+        .quick-actions { display: flex; gap: 8px; margin-bottom: 16px; }
+        .chip { background: #334155; color: #fff; border: none; padding: 8px 14px; border-radius: 20px; cursor: pointer; }
+        .console-output { background: #020617; border: 1px solid #1e293b; border-radius: 8px; padding: 12px; font-family: monospace; height: 300px; overflow-y: auto; }
     </style>
 </head>
 <body>
-
-    <header>
-        <h2>3KIG Command Center</h2>
-        <span id="status-badge">Ready</span>
-    </header>
-
+    <header><h2>3KIG Command Center</h2><span id="status">Ready</span></header>
     <div class="quick-actions">
         <button class="chip" id="btn-sync">Sync Database</button>
         <button class="chip" id="btn-deploy">Trigger Deploy</button>
         <button class="chip" id="btn-export">Export CSV</button>
     </div>
-
-    <div class="console-output" id="console">
-        System initialized. Ready for commands...
-    </div>
+    <div class="console-output" id="console">System initialized...</div>
 
     <script>
-        const SUPABASE_URL = 'https://lrogupgrnffpwlzqprr.supabase.co';
-        const SUPABASE_KEY = 'sb_publishable_Uxs8_2CBonnV1pwvY9dZg_J9SJLrUP';
-        
-        let supabaseClient = null;
-        try {
-            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-        } catch (e) {
-            console.error("Failed to initialize Supabase:", e);
+        const sb = window.supabase.createClient(
+            'https://lrogupgrnffpwlzqprr.supabase.co',
+            'sb_publishable_Uxs8_2CBonnV1pwvY9dZg_J9SJLrUP'
+        );
+
+        async function logAction(action) {
+            const box = document.getElementById('console');
+            box.innerHTML += `<br>[${new Date().toLocaleTimeString()}] ${action}...`;
+            const { error } = await sb.from('command_logs').insert([{ action }]);
+            box.innerHTML += error ? ` <span style="color:red">Error: ${error.message}</span>` : ` <span style="color:green">Success</span>`;
+            box.scrollTop = box.scrollHeight;
         }
 
-        async function runCommand(actionName) {
-            const consoleDiv = document.getElementById('console');
-            consoleDiv.innerHTML += `<br>[${new Date().toLocaleTimeString()}] Executing: ${actionName}...`;
+        async function exportCSV() {
+            const box = document.getElementById('console');
+            box.innerHTML += `<br>[${new Date().toLocaleTimeString()}] Exporting...`;
+            box.scrollTop = box.scrollHeight;
             
-            if (!supabaseClient) {
-                consoleDiv.innerHTML += ` <span style="color: #f59e0b;">(Supabase not initialized)</span>`;
-                consoleDiv.scrollTop = consoleDiv.scrollHeight;
+            const { data, error } = await sb.from('command_logs').select('*');
+            if (error) {
+                box.innerHTML += `<br><span style="color:red">Failed: ${error.message}</span>`;
                 return;
             }
-
-            try {
-                const { error } = await supabaseClient
-                    .from('command_logs')
-                    .insert([{ action: actionName }]);
-
-                if (error) {
-                    consoleDiv.innerHTML += `<br><span style="color: #ef4444;">Insert Error: ${error.message}</span>`;
-                } else {
-                    consoleDiv.innerHTML += ` <span style="color: #22c55e;">Success</span>`;
-                }
-            } catch (err) {
-                consoleDiv.innerHTML += `<br><span style="color: #ef4444;">Network Exception: ${err.message}</span>`;
-            }
-            consoleDiv.scrollTop = consoleDiv.scrollHeight;
+            let csv = 'id,created_at,action\n';
+            data.forEach(r => csv += `${r.id},${r.created_at},"${r.action}"\n`);
+            box.innerHTML += `<br><br><pre style="color:#38bdf8">${csv}</pre>`;
+            box.scrollTop = box.scrollHeight;
         }
 
-        async function exportLogsCSV() {
-            const consoleDiv = document.getElementById('console');
-            consoleDiv.innerHTML += `<br>[${new Date().toLocaleTimeString()}] Fetching logs for export...`;
-            consoleDiv.scrollTop = consoleDiv.scrollHeight;
-
-            if (!supabaseClient) {
-                consoleDiv.innerHTML += `<br><span style="color: #ef4444;">Supabase client missing.</span>`;
-                return;
-            }
-
-            try {
-                const fetchPromise = supabaseClient
-                    .from('command_logs')
-                    .select('*')
-                    .order('created_at', { ascending: false });
-
-                const timeoutPromise = new Promise((_, reject) => 
-                    setTimeout(() => reject(new Error('Connection timed out. Check Supabase RLS policies or ad-blockers.')), 5000)
-                );
-
-                const { data, error } = await Promise.race([fetchPromise, timeoutPromise]);
-
-                if (error) {
-                    consoleDiv.innerHTML += `<br><span style="color: #ef4444;">Export Error: ${error.message}</span>`;
-                    consoleDiv.scrollTop = consoleDiv.scrollHeight;
-                    return;
-                }
-
-                if (!data || data.length === 0) {
-                    consoleDiv.innerHTML += `<br><span style="color: #f59e0b;">No rows found in 'command_logs' table.</span>`;
-                    consoleDiv.scrollTop = consoleDiv.scrollHeight;
-                    return;
-                }
-
-                const headers = ['id', 'created_at', 'action'];
-                let csvContent = headers.join(',') + '\n';
-
-                data.forEach(row => {
-                    const escapedAction = `"${(row.action || '').replace(/"/g, '""')}"`;
-                    const rowData = [row.id, row.created_at, escapedAction];
-                    csvContent += rowData.join(',') + '\n';
-                });
-
-                consoleDiv.innerHTML += `<br><br><strong>[CSV Export Data (${data.length} rows)]:</strong><br><pre style="background:#000; padding:8px; border-radius:4px; color:#38bdf8; overflow-x:auto;">${csvContent}</pre>`;
-                consoleDiv.scrollTop = consoleDiv.scrollHeight;
-
-            } catch (err) {
-                consoleDiv.innerHTML += `<br><span style="color: #ef4444;">Error: ${err.message}</span>`;
-                consoleDiv.scrollTop = consoleDiv.scrollHeight;
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('btn-sync').addEventListener('click', () => runCommand('SYNC'));
-            document.getElementById('btn-deploy').addEventListener('click', () => runCommand('DEPLOY'));
-            document.getElementById('btn-export').addEventListener('click', exportLogsCSV);
-        });
+        document.getElementById('btn-sync').onclick = () => logAction('SYNC');
+        document.getElementById('btn-deploy').onclick = () => logAction('DEPLOY');
+        document.getElementById('btn-export').onclick = exportCSV;
     </script>
 </body>
-    </html>
-    
+</html>
