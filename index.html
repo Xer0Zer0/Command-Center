@@ -6,29 +6,82 @@
     <title>3KIG Command Center</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-        body { background-color: #0d1117; color: #c9d1d9; padding: 16px; display: flex; flex-direction: column; height: 100vh; }
-        header { background: #161b22; padding: 16px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border: 1px solid #30363d; }
-        .status-pill { font-size: 0.75rem; background: #238636; color: #fff; padding: 4px 8px; border-radius: 12px; }
-        .quick-actions { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 16px; }
-        .chip { background: #21262d; border: 1px solid #30363d; color: #c9d1d9; padding: 8px 16px; border-radius: 20px; white-space: nowrap; cursor: pointer; font-size: 0.875rem; }
-        .chip:active { background: #30363d; }
-        .log-container { flex: 1; background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 12px; overflow-y: auto; font-family: monospace; font-size: 0.85rem; display: flex; flex-direction: column; gap: 8px; }
-        .log-entry { padding: 8px; background: #0d1117; border-left: 3px solid #238636; border-radius: 4px; word-break: break-all; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+            margin: 0;
+            padding: 16px;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #1e293b;
+            padding: 12px 16px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+        }
+        h1 {
+            font-size: 1.2rem;
+            margin: 0;
+        }
+        .status-pill {
+            background: #166534;
+            color: #dcfce7;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .quick-actions {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+        }
+        .chip {
+            background: #334155;
+            color: #f8fafc;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .chip:active {
+            background: #475569;
+        }
+        .log-container {
+            background: #1e293b;
+            border-radius: 12px;
+            padding: 12px;
+            height: 60vh;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 0.85rem;
+        }
+        .log-entry {
+            padding: 6px 0;
+            border-bottom: 1px solid #334155;
+        }
+        .log-entry.success { color: #4ade80; }
+        .log-entry.error { color: #f87171; }
     </style>
 </head>
 <body>
 
     <header>
-        <h2>3KIG Command Center</h2>
-        <span class="status-pill" id="connection-status">Connecting...</span>
+        <h1>3KIG Command Center</h1>
+        <span class="status-pill" id="connection-status">Online (Supabase)</span>
     </header>
 
     <div class="quick-actions">
         <button class="chip" onclick="logCommand('PING_SYSTEM')">Ping System</button>
         <button class="chip" onclick="logCommand('SYNC_DIRECTORY')">Sync Directory</button>
         <button class="chip" onclick="logCommand('DEPLOY_CHECK')">Deploy Check</button>
-        <button class="chip" onclick="logCommand('EMERGENCY_LOCK')">Lockdown</button>
     </div>
 
     <div class="log-container" id="log-list">
@@ -37,23 +90,24 @@
 
     <script>
         const SUPABASE_URL = 'https://lrogupgrnffypwlzqprr.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxyb2d1cGdybmZmeXB3bHpxcHJyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDEyMzgwMTgsImV4cCI6MjA1NjgxNDAxOH0.ANONYMOUS_FALLBACK_TOKEN_OR_VALID_KEY';
-        
+        const SUPABASE_ANON_KEY = 'sb_publishable_Uxs8_2CBonnV1pwvyY9dZg_J9SJw';
+
         // Initialize Supabase Client safely
         let supabaseClient;
         try {
             supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-            document.getElementById('connection-status').style.background = '#238636';
+            document.getElementById('connection-status').className = 'status-pill';
             document.getElementById('connection-status').innerText = 'Online (Supabase)';
         } catch (e) {
-            document.getElementById('connection-status').style.background = '#da3633';
-            document.getElementById('connection-status').innerText = 'Client Init Failed';
+            document.getElementById('connection-status').className = 'status-pill';
+            document.getElementById('connection-status').style.background = '#991b1b';
+            document.getElementById('connection-status').innerText = 'Offline (Init Error)';
         }
 
         async function logCommand(actionName) {
             const list = document.getElementById('log-list');
             const timestamp = new Date().toISOString();
-            
+
             // Append locally first for instant feedback
             const localEntry = document.createElement('div');
             localEntry.className = 'log-entry';
@@ -63,22 +117,18 @@
             try {
                 const { data, error } = await supabaseClient
                     .from('command_logs')
-                    .insert([{ action: actionName, payload: { timestamp, source: 'github-pages' } }]);
+                    .insert([{ action: actionName, created_at: timestamp }]);
 
-                if (error) {
-                    throw error;
-                }
-                
+                if (error) throw error;
+
                 const successEntry = document.createElement('div');
-                successEntry.className = 'log-entry';
-                successEntry.style.borderLeftColor = '#238636';
-                successEntry.innerText = `[${timestamp}] Success: ${actionName} logged to Supabase.`;
+                successEntry.className = 'log-entry success';
+                successEntry.innerText = `[${timestamp}] Success: ${actionName} logged to DB.`;
                 list.prepend(successEntry);
             } catch (err) {
                 const errorEntry = document.createElement('div');
-                errorEntry.className = 'log-entry';
-                errorEntry.style.borderLeftColor = '#da3633';
-                errorEntry.innerText = `[${timestamp}] DB Error: ${err.message || JSON.stringify(err)}`;
+                errorEntry.className = 'log-entry error';
+                errorEntry.innerText = `[${timestamp}] DB Error: ${err.message}`;
                 list.prepend(errorEntry);
             }
         }
