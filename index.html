@@ -96,7 +96,7 @@
             const { data, error } = await supabase
                 .from('command_logs')
                 .select('*')
-                .order('created_z', { ascending: false });
+                .order('created_at', { ascending: false });
 
             if (error) {
                 console.error('Error fetching logs for export:', error);
