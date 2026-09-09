@@ -72,8 +72,10 @@
     </div>
 
     <script>
+        // REPLACE THESE WITH YOUR ACTUAL SUPABASE CREDENTIALS
         const SUPABASE_URL = 'YOUR_SUPABASE_URL';
         const SUPABASE_KEY = 'YOUR_SUPABASE_ANON_KEY';
+        
         const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         async function runCommand(actionName) {
@@ -93,6 +95,7 @@
         }
 
         async function exportLogsCSV() {
+            console.log('Export triggered');
             const { data, error } = await supabase
                 .from('command_logs')
                 .select('*')
@@ -100,6 +103,7 @@
 
             if (error) {
                 console.error('Error fetching logs for export:', error);
+                alert('Export failed: ' + error.message);
                 return;
             }
 
