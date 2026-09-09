@@ -76,12 +76,10 @@
         const SUPABASE_KEY = 'sb_publishable_Uxs8_2CBonnV1pwvY9dZg_J9SJLrUP';
         
         let supabaseClient = null;
-        if (SUPABASE_URL !== 'YOUR_SUPABASE_URL' && SUPABASE_KEY !== 'YOUR_SUPABASE_ANON_KEY') {
-            try {
-                supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-            } catch (e) {
-                console.error("Failed to initialize Supabase:", e);
-            }
+        try {
+            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        } catch (e) {
+            console.error("Failed to initialize Supabase:", e);
         }
 
         async function runCommand(actionName) {
@@ -89,7 +87,7 @@
             consoleDiv.innerHTML += `<br>[${new Date().toLocaleTimeString()}] Executing: ${actionName}...`;
             
             if (!supabaseClient) {
-                consoleDiv.innerHTML += ` <span style="color: #f59e0b;">(Simulated: Add Supabase keys to connect live)</span>`;
+                consoleDiv.innerHTML += ` <span style="color: #f59e0b;">(Supabase not initialized)</span>`;
                 consoleDiv.scrollTop = consoleDiv.scrollHeight;
                 return;
             }
@@ -99,7 +97,7 @@
                 .insert([{ action: actionName }]);
 
             if (error) {
-                consoleDiv.innerHTML += `<br><span style="color: #ef4444;">Error: ${error.message}</span>`;
+                consoleDiv.innerHTML += `<br><span style="color: #ef4444;">Insert Error: ${error.message}</span>`;
             } else {
                 consoleDiv.innerHTML += ` <span style="color: #22c55e;">Success</span>`;
             }
@@ -107,12 +105,11 @@
         }
 
         async function exportLogsCSV() {
+            const consoleDiv = document.getElementById('console');
+            consoleDiv.innerHTML += `<br>[${new Date().toLocaleTimeString()}] Fetching logs for export...`;
+
             if (!supabaseClient) {
-                const mockData = [
-                    { id: 1, created_at: new Date().toISOString(), action: 'SYNC (Sample)' },
-                    { id: 2, created_at: new Date().toISOString(), action: 'DEPLOY (Sample)' }
-                ];
-                triggerCSVDownload(mockData);
+                consoleDiv.innerHTML += `<br><span style="color: #ef4444;">Supabase client missing.</span>`;
                 return;
             }
 
@@ -122,19 +119,17 @@
                 .order('created_at', { ascending: false });
 
             if (error) {
-                alert('Export failed: ' + error.message);
+                consoleDiv.innerHTML += `<br><span style="color: #ef4444;">Export Error: ${error.message}</span>`;
+                consoleDiv.scrollTop = consoleDiv.scrollHeight;
                 return;
             }
 
             if (!data || data.length === 0) {
-                alert('No logs available to export.');
+                consoleDiv.innerHTML += `<br><span style="color: #f59e0b;">No rows found in 'command_logs' table.</span>`;
+                consoleDiv.scrollTop = consoleDiv.scrollHeight;
                 return;
             }
 
-            triggerCSVDownload(data);
-        }
-
-        function triggerCSVDownload(data) {
             const headers = ['id', 'created_at', 'action'];
             let csvContent = headers.join(',') + '\n';
 
@@ -144,8 +139,7 @@
                 csvContent += rowData.join(',') + '\n';
             });
 
-            const consoleDiv = document.getElementById('console');
-            consoleDiv.innerHTML += `<br><br><strong>[CSV Export Data]:</strong><br><pre style="background:#000; padding:8px; border-radius:4px; color:#38bdf8; overflow-x:auto;">${csvContent}</pre>`;
+            consoleDiv.innerHTML += `<br><br><strong>[CSV Export Data (${data.length} rows)]:</strong><br><pre style="background:#000; padding:8px; border-radius:4px; color:#38bdf8; overflow-x:auto;">${csvContent}</pre>`;
             consoleDiv.scrollTop = consoleDiv.scrollHeight;
         }
 
