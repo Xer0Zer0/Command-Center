@@ -92,14 +92,18 @@
                 return;
             }
 
-            const { error } = await supabaseClient
-                .from('command_logs')
-                .insert([{ action: actionName }]);
+            try {
+                const { error } = await supabaseClient
+                    .from('command_logs')
+                    .insert([{ action: actionName }]);
 
-            if (error) {
-                consoleDiv.innerHTML += `<br><span style="color: #ef4444;">Insert Error: ${error.message}</span>`;
-            } else {
-                consoleDiv.innerHTML += ` <span style="color: #22c55e;">Success</span>`;
+                if (error) {
+                    consoleDiv.innerHTML += `<br><span style="color: #ef4444;">Insert Error: ${error.message}</span>`;
+                } else {
+                    consoleDiv.innerHTML += ` <span style="color: #22c55e;">Success</span>`;
+                }
+            } catch (err) {
+                consoleDiv.innerHTML += `<br><span style="color: #ef4444;">Network Exception: ${err.message}</span>`;
             }
             consoleDiv.scrollTop = consoleDiv.scrollHeight;
         }
@@ -107,40 +111,53 @@
         async function exportLogsCSV() {
             const consoleDiv = document.getElementById('console');
             consoleDiv.innerHTML += `<br>[${new Date().toLocaleTimeString()}] Fetching logs for export...`;
+            consoleDiv.scrollTop = consoleDiv.scrollHeight;
 
             if (!supabaseClient) {
                 consoleDiv.innerHTML += `<br><span style="color: #ef4444;">Supabase client missing.</span>`;
                 return;
             }
 
-            const { data, error } = await supabaseClient
-                .from('command_logs')
-                .select('*')
-                .order('created_at', { ascending: false });
+            try {
+                const fetchPromise = supabaseClient
+                    .from('command_logs')
+                    .select('*')
+                    .order('created_at', { ascending: false });
 
-            if (error) {
-                consoleDiv.innerHTML += `<br><span style="color: #ef4444;">Export Error: ${error.message}</span>`;
+                const timeoutPromise = new Promise((_, reject) => 
+                    setTimeout(() => reject(new Error('Connection timed out. Check Supabase RLS policies or ad-blockers.')), 5000)
+                );
+
+                const { data, error } = await Promise.race([fetchPromise, timeoutPromise]);
+
+                if (error) {
+                    consoleDiv.innerHTML += `<br><span style="color: #ef4444;">Export Error: ${error.message}</span>`;
+                    consoleDiv.scrollTop = consoleDiv.scrollHeight;
+                    return;
+                }
+
+                if (!data || data.length === 0) {
+                    consoleDiv.innerHTML += `<br><span style="color: #f59e0b;">No rows found in 'command_logs' table.</span>`;
+                    consoleDiv.scrollTop = consoleDiv.scrollHeight;
+                    return;
+                }
+
+                const headers = ['id', 'created_at', 'action'];
+                let csvContent = headers.join(',') + '\n';
+
+                data.forEach(row => {
+                    const escapedAction = `"${(row.action || '').replace(/"/g, '""')}"`;
+                    const rowData = [row.id, row.created_at, escapedAction];
+                    csvContent += rowData.join(',') + '\n';
+                });
+
+                consoleDiv.innerHTML += `<br><br><strong>[CSV Export Data (${data.length} rows)]:</strong><br><pre style="background:#000; padding:8px; border-radius:4px; color:#38bdf8; overflow-x:auto;">${csvContent}</pre>`;
                 consoleDiv.scrollTop = consoleDiv.scrollHeight;
-                return;
-            }
 
-            if (!data || data.length === 0) {
-                consoleDiv.innerHTML += `<br><span style="color: #f59e0b;">No rows found in 'command_logs' table.</span>`;
+            } catch (err) {
+                consoleDiv.innerHTML += `<br><span style="color: #ef4444;">Error: ${err.message}</span>`;
                 consoleDiv.scrollTop = consoleDiv.scrollHeight;
-                return;
             }
-
-            const headers = ['id', 'created_at', 'action'];
-            let csvContent = headers.join(',') + '\n';
-
-            data.forEach(row => {
-                const escapedAction = `"${(row.action || '').replace(/"/g, '""')}"`;
-                const rowData = [row.id, row.created_at, escapedAction];
-                csvContent += rowData.join(',') + '\n';
-            });
-
-            consoleDiv.innerHTML += `<br><br><strong>[CSV Export Data (${data.length} rows)]:</strong><br><pre style="background:#000; padding:8px; border-radius:4px; color:#38bdf8; overflow-x:auto;">${csvContent}</pre>`;
-            consoleDiv.scrollTop = consoleDiv.scrollHeight;
         }
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -150,4 +167,5 @@
         });
     </script>
 </body>
-</html>
+    </html>
+    
