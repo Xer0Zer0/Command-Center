@@ -144,19 +144,9 @@
                 csvContent += rowData.join(',') + '\n';
             });
 
-            try {
-                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-                const url = URL.createObjectURL(blob);
-                const link = document.createElement('a');
-                link.href = url;
-                link.download = `command_logs_${new Date().toISOString().slice(0,10)}.csv`;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-            } catch (e) {
-                const encodedUri = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csvContent);
-                window.open(encodedUri, '_blank');
-            }
+            const consoleDiv = document.getElementById('console');
+            consoleDiv.innerHTML += `<br><br><strong>[CSV Export Data]:</strong><br><pre style="background:#000; padding:8px; border-radius:4px; color:#38bdf8; overflow-x:auto;">${csvContent}</pre>`;
+            consoleDiv.scrollTop = consoleDiv.scrollHeight;
         }
 
         document.addEventListener('DOMContentLoaded', () => {
