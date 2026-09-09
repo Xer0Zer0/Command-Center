@@ -72,8 +72,8 @@
     </div>
 
     <script>
-        const SUPABASE_URL = 'YOUR_SUPABASE_URL';
-        const SUPABASE_KEY = 'YOUR_SUPABASE_ANON_KEY';
+        const SUPABASE_URL = 'https://lrogupgrnffpwlzqprr.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_Uxs8_2CBonnV1pwvY9dZg_J9SJLrUP';
         
         let supabaseClient = null;
         if (SUPABASE_URL !== 'YOUR_SUPABASE_URL' && SUPABASE_KEY !== 'YOUR_SUPABASE_ANON_KEY') {
@@ -108,7 +108,6 @@
 
         async function exportLogsCSV() {
             if (!supabaseClient) {
-                // Fallback local export so interface is instantly responsive without keys
                 const mockData = [
                     { id: 1, created_at: new Date().toISOString(), action: 'SYNC (Sample)' },
                     { id: 2, created_at: new Date().toISOString(), action: 'DEPLOY (Sample)' }
