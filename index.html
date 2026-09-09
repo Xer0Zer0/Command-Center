@@ -72,17 +72,17 @@
     </div>
 
     <script>
-        // Paste your actual Supabase Project URL and Anon Key inside the quotes below:
-        const SUPABASE_URL = 'https://your-project-id.supabase.co';
-        const SUPABASE_KEY = 'your-actual-anon-key-here';
+        // Replace with your actual Supabase URL and Anon Key if not already set
+        const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+        const SUPABASE_KEY = 'YOUR_SUPABASE_ANON_KEY';
         
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         async function runCommand(actionName) {
             const consoleDiv = document.getElementById('console');
             consoleDiv.innerHTML += `<br>[${new Date().toLocaleTimeString()}] Executing: ${actionName}...`;
             
-            const { error } = await supabase
+            const { error } = await supabaseClient
                 .from('command_logs')
                 .insert([{ action: actionName }]);
 
@@ -96,7 +96,7 @@
 
         async function exportLogsCSV() {
             console.log('Export triggered');
-            const { data, error } = await supabase
+            const { data, error } = await supabaseClient
                 .from('command_logs')
                 .select('*')
                 .order('created_at', { ascending: false });
