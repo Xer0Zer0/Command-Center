@@ -58,13 +58,13 @@
 
     <header>
         <h2>3KIG Command Center</h2>
-        <span id="status-badge">Connected</span>
+        <span id="status-badge">Ready</span>
     </header>
 
     <div class="quick-actions">
-        <button class="chip" onclick="runCommand('SYNC')">Sync Database</button>
-        <button class="chip" onclick="runCommand('DEPLOY')">Trigger Deploy</button>
-        <button class="chip" onclick="exportLogsCSV()">Export CSV</button>
+        <button class="chip" id="btn-sync">Sync Database</button>
+        <button class="chip" id="btn-deploy">Trigger Deploy</button>
+        <button class="chip" id="btn-export">Export CSV</button>
     </div>
 
     <div class="console-output" id="console">
@@ -72,16 +72,28 @@
     </div>
 
     <script>
-        // Replace with your actual Supabase URL and Anon Key if not already set
         const SUPABASE_URL = 'YOUR_SUPABASE_URL';
         const SUPABASE_KEY = 'YOUR_SUPABASE_ANON_KEY';
         
-        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        let supabaseClient = null;
+        if (SUPABASE_URL !== 'YOUR_SUPABASE_URL' && SUPABASE_KEY !== 'YOUR_SUPABASE_ANON_KEY') {
+            try {
+                supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+            } catch (e) {
+                console.error("Failed to initialize Supabase:", e);
+            }
+        }
 
         async function runCommand(actionName) {
             const consoleDiv = document.getElementById('console');
             consoleDiv.innerHTML += `<br>[${new Date().toLocaleTimeString()}] Executing: ${actionName}...`;
             
+            if (!supabaseClient) {
+                consoleDiv.innerHTML += ` <span style="color: #f59e0b;">(Simulated: Add Supabase keys to connect live)</span>`;
+                consoleDiv.scrollTop = consoleDiv.scrollHeight;
+                return;
+            }
+
             const { error } = await supabaseClient
                 .from('command_logs')
                 .insert([{ action: actionName }]);
@@ -95,14 +107,22 @@
         }
 
         async function exportLogsCSV() {
-            console.log('Export triggered');
+            if (!supabaseClient) {
+                // Fallback local export so interface is instantly responsive without keys
+                const mockData = [
+                    { id: 1, created_at: new Date().toISOString(), action: 'SYNC (Sample)' },
+                    { id: 2, created_at: new Date().toISOString(), action: 'DEPLOY (Sample)' }
+                ];
+                triggerCSVDownload(mockData);
+                return;
+            }
+
             const { data, error } = await supabaseClient
                 .from('command_logs')
                 .select('*')
                 .order('created_at', { ascending: false });
 
             if (error) {
-                console.error('Error fetching logs for export:', error);
                 alert('Export failed: ' + error.message);
                 return;
             }
@@ -112,6 +132,10 @@
                 return;
             }
 
+            triggerCSVDownload(data);
+        }
+
+        function triggerCSVDownload(data) {
             const headers = ['id', 'created_at', 'action'];
             let csvContent = headers.join(',') + '\n';
 
@@ -130,6 +154,12 @@
             link.click();
             document.body.removeChild(link);
         }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('btn-sync').addEventListener('click', () => runCommand('SYNC'));
+            document.getElementById('btn-deploy').addEventListener('click', () => runCommand('DEPLOY'));
+            document.getElementById('btn-export').addEventListener('click', exportLogsCSV);
+        });
     </script>
 </body>
 </html>
