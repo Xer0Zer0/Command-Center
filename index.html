@@ -16,62 +16,44 @@
 <body>
     <header><h2>3KIG Command Center</h2><span id="status">Ready</span></header>
     <div class="quick-actions">
-        <button class="chip" id="btn-sync">Sync Database</button>
-        <button class="chip" id="btn-deploy">Trigger Deploy</button>
+        <button class="chip" id="btn-sync">Sync</button>
+        <button class="chip" id="btn-deploy">Deploy</button>
         <button class="chip" id="btn-export">Export CSV</button>
     </div>
     <div class="console-output" id="console">System initialized...</div>
-
     <script>
-        const sb = window.supabase.createClient(
-            'https://lrogupgrnffpwlzqprr.supabase.co',
-            'sb_publishable_Uxs8_2CBonnV1pwvY9dZg_J9SJLrUP'
-        );
-
-        let localLogs = JSON.parse(localStorage.getItem('command_logs_local') || '[]');
-
-        async function logAction(action) {
-            const box = document.getElementById('console');
-            box.innerHTML += `<br>[${new Date().toLocaleTimeString()}] Executing ${action}...`;
-            
-            const newLog = { id: Date.now(), created_at: new Date().toISOString(), action };
-            localLogs.unshift(newLog);
-            localStorage.setItem('command_logs_local', JSON.stringify(localLogs));
-
-            try {
-                const timeout = new Promise((_, reject) => setTimeout(() => reject('timeout'), 3000));
-                await Promise.race([sb.from('command_logs').insert([{ action }]), timeout]);
-                box.innerHTML += ` <span style="color:#22c55e">Success</span>`;
-            } catch (e) {
-                box.innerHTML += ` <span style="color:#f59e0b">Logged Locally</span>`;
-            }
-            box.scrollTop = box.scrollHeight;
+        const sb = window.supabase.createClient('https://lrogupgrnffpwlzqprr.supabase.co','sb_publishable_Uxs8_2CBonnV1pwvY9dZg_J9SJLrUP');
+        let logs = JSON.parse(localStorage.getItem('logs') || '[]');
+        function logMsg(m) {
+            const b = document.getElementById('console');
+            b.innerHTML += `<br>[${new Date().toLocaleTimeString()}] ${m}`;
+            b.scrollTop = b.scrollHeight;
         }
-
-        async function exportCSV() {
-            const box = document.getElementById('console');
-            box.innerHTML += `<br>[${new Date().toLocaleTimeString()}] Exporting CSV...`;
-            box.scrollTop = box.scrollHeight;
-
-            let data = localLogs;
+        async function act(name) {
+            logMsg(name + '...');
+            logs.unshift({id: Date.now(), time: new Date().toISOString(), action: name});
+            localStorage.setItem('logs', JSON.stringify(logs));
             try {
-                const timeout = new Promise((_, reject) => setTimeout(() => reject('timeout'), 3000));
-                const res = await Promise.race([sb.from('command_logs').select('*').order('created_at', { ascending: false }), timeout]);
-                if (res.data && res.data.length > 0) data = res.data;
-            } catch (e) {
-                // Uses local cache seamlessly if network/RLS blocks
+                await Promise.race([
+                    sb.from('command_logs').insert([{action: name}]),
+                    new Promise((_, rej) => setTimeout(rej, 2000))
+                ]);
+                logMsg(name + ' -> Success');
+            } catch(e) {
+                logMsg(name + ' -> Saved Locally');
             }
-
+        }
+        function expCSV() {
+            logMsg('Exporting CSV...');
             let csv = 'id,created_at,action\n';
-            data.forEach(r => csv += `${r.id},${r.created_at},"${(r.action || '').replace(/"/g, '""')}"\n`);
-            
-            box.innerHTML += `<br><br><strong>[CSV Export (${data.length} rows)]:</strong><br><pre style="color:#38bdf8; background:#000; padding:8px; border-radius:4px;">${csv}</pre>`;
-            box.scrollTop = box.scrollHeight;
+            logs.forEach(r => csv += `${r.id},${r.time},"${r.action}"\n`);
+            const b = document.getElementById('console');
+            b.innerHTML += `<br><br><pre style="color:#38bdf8;background:#000;padding:8px">${csv}</pre>`;
+            b.scrollTop = b.scrollHeight;
         }
-
-        document.getElementById('btn-sync').onclick = () => logAction('SYNC');
-        document.getElementById('btn-deploy').onclick = () => logAction('DEPLOY');
-        document.getElementById('btn-export').onclick = exportCSV;
+        document.getElementById('btn-sync').onclick = () => act('SYNC');
+        document.getElementById('btn-deploy').onclick = () => act('DEPLOY');
+        document.getElementById('btn-export').onclick = expCSV;
     </script>
 </body>
 </html>
