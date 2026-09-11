@@ -21,7 +21,44 @@
         <button class="chip" id="btn-export">Export CSV</button>
     </div>
     <div class="console-output" id="console">System initialized...</div>
-    <script>
+    <script><!-- Aethel Health & Cost Ledger Component -->
+<div class="health-dashboard">
+  <h3>System Resource & API Ledger</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Service / API</th>
+        <th>Type</th>
+        <th>Credits / Usage</th>
+        <th>Cost / Status</th>
+        <th>Renewal Deadline</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Cloud VPS Node</td>
+        <td>Infrastructure</td>
+        <td>Unlimited (2GB RAM)</td>
+        <td>$12.00 / mo</td>
+        <td>2026-10-01</td>
+      </tr>
+      <tr>
+        <td>OpenAI / AI Engine</td>
+        <td>LLM API</td>
+        <td>$14.50 remaining</td>
+        <td>Pay-as-you-go</td>
+        <td>Active (Auto-reload)</td>
+      </tr>
+      <tr>
+        <td>Domain & SSL</td>
+        <td>Networking</td>
+        <td>1 Year Active</td>
+        <td>$15.00 / yr</td>
+        <td>2027-04-15</td>
+      </tr>
+    </tbody>
+  </table>
+    </div>
         const sb = window.supabase.createClient('https://lrogupgrnffpwlzqprr.supabase.co','sb_publishable_Uxs8_2CBonnV1pwvY9dZg_J9SJLrUP');
         let logs = JSON.parse(localStorage.getItem('logs') || '[]');
         function logMsg(m) {
