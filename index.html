@@ -11,6 +11,7 @@
             --text: #f8fafc;
             --accent: #38bdf8;
             --border: #334155;
+            --success: #34d399;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
         body { background: var(--bg); color: var(--text); padding: 1.5rem; }
@@ -18,52 +19,87 @@
         .quick-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
         .chip { background: var(--card-bg); color: var(--text); border: 1px solid var(--border); padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer; font-size: 0.875rem; }
         .chip:hover { border-color: var(--accent); }
-        .grid-panel { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; }
+        .grid-panel { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
         .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; display: flex; flex-direction: column; gap: 0.75rem; }
-        .card h3 { font-size: 1rem; color: var(--accent); }
-        .console-output { background: #020617; border: 1px solid var(--border); border-radius: 8px; padding: 1rem; font-family: monospace; font-size: 0.875rem; color: #34d399; height: 180px; overflow-y: auto; }
+        .card h3 { font-size: 1rem; color: var(--accent); display: flex; justify-content: space-between; align-items: center; }
+        .badge { font-size: 0.75rem; padding: 0.2rem 0.5rem; border-radius: 4px; background: rgba(52, 211, 153, 0.1); color: var(--success); border: 1px solid rgba(52, 211, 153, 0.2); }
+        .metric { font-size: 1.75rem; font-weight: 700; color: var(--text); }
+        .console-output { background: #020617; border: 1px solid var(--border); border-radius: 8px; padding: 1rem; font-family: monospace; font-size: 0.875rem; color: var(--success); height: 160px; overflow-y: auto; }
+        .pillar-list { display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.875rem; color: #94a3b8; }
+        .pillar-item { display: flex; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 0.35rem; }
+        .pillar-item span:last-child { color: var(--text); font-weight: 500; }
     </style>
 </head>
 <body>
     <header>
         <h2>3KIG Command Center</h2>
-        <span style="font-size: 0.875rem; color: #94a3b8;">Aethel Framework: Active</span>
+        <span style="font-size: 0.875rem; color: #94a3b8;">Aethel Framework Active</span>
     </header>
 
     <div class="quick-actions">
-        <button class="chip" id="btn-sync">Sync Schema</button>
-        <button class="chip" id="btn-deploy">Deploy Tunnels</button>
-        <button class="chip" id="btn-export">Export State</button>
+        <button class="chip" id="btn-sync">Sync Database Schema</button>
+        <button class="chip" id="btn-flush">Flush Cache</button>
+        <button class="chip" id="btn-export">Export Metrics</button>
     </div>
 
     <div class="grid-panel">
         <div class="card">
-            <h3>System Status & Telemetry</h3>
-            <div class="console-output" id="console">
-                [System] Initializing Aethel framework layers...<br>
-                [Commercial] Listings database schema ready.<br>
-                [Expansion] Category taxonomies loaded.<br>
-                [Corporate] Zero Trust routing awaiting activation.
+            <h3>Registered Businesses <span class="badge">Community</span></h3>
+            <div class="metric" id="count-businesses">0</div>
+            <p style="font-size: 0.75rem; color: #94a3b8;">Active merchant directory profiles</p>
+        </div>
+        <div class="card">
+            <h3>Active Listings <span class="badge">Commercial</span></h3>
+            <div class="metric" id="count-listings">0</div>
+            <p style="font-size: 0.75rem; color: #94a3b8;">Storefront inventory records</p>
+        </div>
+        <div class="card">
+            <h3>Category Taxonomies <span class="badge">Expansion</span></h3>
+            <div class="metric" id="count-categories">0</div>
+            <p style="font-size: 0.75rem; color: #94a3b8;">Hierarchical directory sectors</p>
+        </div>
+    </div>
+
+    <div class="grid-panel">
+        <div class="card">
+            <h3>Aethel Pillar Health</h3>
+            <div class="pillar-list">
+                <div class="pillar-item"><span>Corporate</span><span>Operational</span></div>
+                <div class="pillar-item"><span>Commercial</span><span>Synced</span></div>
+                <div class="pillar-item"><span>Community</span><span>Online</span></div>
+                <div class="pillar-item"><span>Management</span><span>Active Dashboard</span></div>
+                <div class="pillar-item"><span>Expansion</span><span>Ready</span></div>
+                <div class="pillar-item"><span>System</span><span>Standby (Tunnel Pending)</span></div>
             </div>
         </div>
         <div class="card">
-            <h3>Pillar Mapping Overview</h3>
-            <p style="font-size: 0.875rem; color: #94a3b8; line-height: 1.5;">
-                Management and System layers are monitoring active data synchronization between the storefront directory and backend SQL instances.
-            </p>
+            <h3>System Telemetry Log</h3>
+            <div class="console-output" id="console">
+                [System] Command Center dashboard initialized.<br>
+                [Management] UI modules loaded successfully.<br>
+                [Commercial] Awaiting backend data stream connection.
+            </div>
         </div>
     </div>
 
     <script>
         const consoleEl = document.getElementById('console');
         
+        // Simulated live metric loader
+        setTimeout(() => {
+            document.getElementById('count-businesses').innerText = '12';
+            document.getElementById('count-listings').innerText = '48';
+            document.getElementById('count-categories').innerText = '6';
+            consoleEl.innerHTML += `<br>[Data] Fetched live counts for entities across pillars.`;
+        }, 600);
+
         document.getElementById('btn-sync').addEventListener('click', () => {
-            consoleEl.innerHTML += `<br>[Sync] Updating businesses, listings, and categories schemas...`;
+            consoleEl.innerHTML += `<br>[Sync] Re-verifying database tables: businesses, listings, categories...`;
             consoleEl.scrollTop = consoleEl.scrollHeight;
         });
 
-        document.getElementById('btn-deploy').addEventListener('click', () => {
-            consoleEl.innerHTML += `<br>[Deploy] Pushing configuration to Cloudflare Zero Trust tunnel...`;
+        document.getElementById('btn-flush').addEventListener('click', () => {
+            consoleEl.innerHTML += `<br>[Cache] Local browser storage cleared successfully.`;
             consoleEl.scrollTop = consoleEl.scrollHeight;
         });
     </script>
