@@ -91,6 +91,22 @@
         document.getElementById('btn-sync').onclick = () => act('SYNC');
         document.getElementById('btn-deploy').onclick = () => act('DEPLOY');
         document.getElementById('btn-export').onclick = expCSV;
-    </script>   
+    </script>
+    <script>
+  function getOrRegisterDevice() {
+      let deviceId = localStorage.getItem('controller_device_uuid');
+      if (!deviceId) {
+          deviceId = crypto.randomUUID ? crypto.randomUUID() : 'dev_' + Math.random().toString(36).substring(2, 15);
+          localStorage.setItem('controller_device_uuid', deviceId);
+      }
+      return {
+          id: deviceId,
+          screen: { width: window.innerWidth, height: window.innerHeight },
+          userAgent: navigator.userAgent
+      };
+  }
+  const activeDevice = getOrRegisterDevice();
+  console.log("Registered Device ID:", activeDevice.id);
+    </script>
 </body>
 </html>
