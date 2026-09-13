@@ -3,110 +3,103 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3KIG Command Center</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <title>Directory & Storefront</title>
+    <link rel="manifest" href="manifest.json">
     <style>
-        body { font-family: sans-serif; background: #0f172a; color: #f8fafc; padding: 16px; margin: 0; }
-        header { display: flex; justify-content: space-between; background: #1e293b; padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; }
-        .quick-actions { display: flex; gap: 8px; margin-bottom: 16px; }
-        .chip { background: #334155; color: #fff; border: none; padding: 8px 14px; border-radius: 20px; cursor: pointer; }
-        .console-output { background: #020617; border: 1px solid #1e293b; border-radius: 8px; padding: 12px; font-family: monospace; height: 300px; overflow-y: auto; }
+        :root {
+            --primary: #2563eb;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #0f172a;
+            --border: #e2e8f0;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+        body { background: var(--bg); color: var(--text); padding-bottom: 2rem; }
+        
+        header {
+            position: sticky; top: 0; background: var(--card-bg); border-bottom: 1px solid var(--border);
+            padding: 1rem; z-index: 10; display: flex; flex-direction: column; gap: 0.75rem;
+        }
+        .search-bar {
+            width: 100%; padding: 0.75rem 1rem; font-size: 1rem; border: 1px solid var(--border);
+            border-radius: 8px; outline: none; background: var(--bg);
+        }
+        .categories {
+            display: flex; gap: 0.5rem; overflow-x: auto; padding-bottom: 0.25rem; scrollbar-width: none;
+        }
+        .categories::-webkit-scrollbar { display: none; }
+        .chip {
+            background: var(--bg); border: 1px solid var(--border); padding: 0.5rem 1rem;
+            border-radius: 20px; font-size: 0.875rem; white-space: nowrap; cursor: pointer;
+        }
+        .chip.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+        .grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1rem; padding: 1rem; max-width: 1200px; margin: 0 auto;
+        }
+        .card {
+            background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px;
+            overflow: hidden; display: flex; flex-direction: column; cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .card-img { width: 100%; height: 160px; background: #cbd5e1; object-fit: cover; }
+        .card-body { padding: 1rem; display: flex; flex-direction: column; gap: 0.5rem; }
+        .card-title { font-size: 1.125rem; font-weight: 600; }
+        .card-cat { font-size: 0.75rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; }
+        .card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem; }
+        .price { font-weight: 600; color: var(--primary); }
     </style>
 </head>
 <body>
-    <header><h2>3KIG Command Center</h2><span id="status">Ready</span></header>
-    <div class="quick-actions">
-        <button class="chip" id="btn-sync">Sync</button>
-        <button class="chip" id="btn-deploy">Deploy</button>
-        <button class="chip" id="btn-export">Export CSV</button>
-    </div>
-    <div class="console-output" id="console">System initialized...</div>
-    <script><!-- Aethel Health & Cost Ledger Component -->
-<div class="health-dashboard">
-  <h3>System Resource & API Ledger</h3>
-  <table>
-    <thead>
-      <tr>
-        <th>Service / API</th>
-        <th>Type</th>
-        <th>Credits / Usage</th>
-        <th>Cost / Status</th>
-        <th>Renewal Deadline</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>Cloud VPS Node</td>
-        <td>Infrastructure</td>
-        <td>Unlimited (2GB RAM)</td>
-        <td>$12.00 / mo</td>
-        <td>2026-10-01</td>
-      </tr>
-      <tr>
-        <td>OpenAI / AI Engine</td>
-        <td>LLM API</td>
-        <td>$14.50 remaining</td>
-        <td>Pay-as-you-go</td>
-        <td>Active (Auto-reload)</td>
-      </tr>
-      <tr>
-        <td>Domain & SSL</td>
-        <td>Networking</td>
-        <td>1 Year Active</td>
-        <td>$15.00 / yr</td>
-        <td>2027-04-15</td>
-      </tr>
-    </tbody>
-  </table>
-    </div>
-        const sb = window.supabase.createClient('https://lrogupgrnffpwlzqprr.supabase.co','sb_publishable_Uxs8_2CBonnV1pwvY9dZg_J9SJLrUP');
-        let logs = JSON.parse(localStorage.getItem('logs') || '[]');
-        function logMsg(m) {
-            const b = document.getElementById('console');
-            b.innerHTML += `<br>[${new Date().toLocaleTimeString()}] ${m}`;
-            b.scrollTop = b.scrollHeight;
-        }
-        async function act(name) {
-            logMsg(name + '...');
-            logs.unshift({id: Date.now(), time: new Date().toISOString(), action: name});
-            localStorage.setItem('logs', JSON.stringify(logs));
-            try {
-                await Promise.race([
-                    sb.from('command_logs').insert([{action: name}]),
-                    new Promise((_, rej) => setTimeout(rej, 2000))
-                ]);
-                logMsg(name + ' -> Success');
-            } catch(e) {
-                logMsg(name + ' -> Saved Locally');
-            }
-        }
-        function expCSV() {
-            logMsg('Exporting CSV...');
-            let csv = 'id,created_at,action\n';
-            logs.forEach(r => csv += `${r.id},${r.time},"${r.action}"\n`);
-            const b = document.getElementById('console');
-            b.innerHTML += `<br><br><pre style="color:#38bdf8;background:#000;padding:8px">${csv}</pre>`;
-            b.scrollTop = b.scrollHeight;
-        }
-        document.getElementById('btn-sync').onclick = () => act('SYNC');
-        document.getElementById('btn-deploy').onclick = () => act('DEPLOY');
-        document.getElementById('btn-export').onclick = expCSV;
-    </script>
+
+    <header>
+        <input type="text" class="search-bar" placeholder="Search directory or storefront..." id="searchInput">
+        <div class="categories" id="categoryContainer">
+            <div class="chip active" data-cat="all">All</div>
+            <div class="chip" data-cat="services">Services</div>
+            <div class="chip" data-cat="retail">Retail</div>
+            <div class="chip" data-cat="food">Food & Drink</div>
+        </div>
+    </header>
+
+    <main class="grid" id="cardGrid">
+        <!-- Dynamic Cards Injected Here -->
+    </main>
+
     <script>
-  function getOrRegisterDevice() {
-      let deviceId = localStorage.getItem('controller_device_uuid');
-      if (!deviceId) {
-          deviceId = crypto.randomUUID ? crypto.randomUUID() : 'dev_' + Math.random().toString(36).substring(2, 15);
-          localStorage.setItem('controller_device_uuid', deviceId);
-      }
-      return {
-          id: deviceId,
-          screen: { width: window.innerWidth, height: window.innerHeight },
-          userAgent: navigator.userAgent
-      };
-  }
-  const activeDevice = getOrRegisterDevice();
-  console.log("Registered Device ID:", activeDevice.id);
+        const sampleData = [
+            { id: 1, title: "Anchor Artisan Goods", category: "retail", price: "$25.00", img: "" },
+            { id: 2, title: "Metro Logistics & Transit", category: "services", price: "$120.00", img: "" },
+            { id: 3, title: "Heritage Spice Kitchen", category: "food", price: "$15.00", img: "" }
+        ];
+
+        const grid = document.getElementById('cardGrid');
+        const searchInput = document.getElementById('searchInput');
+
+        function renderCards(data) {
+            grid.innerHTML = data.map(item => `
+                <div class="card">
+                    <div class="card-img"></div>
+                    <div class="card-body">
+                        <span class="card-cat">${item.category}</span>
+                        <h3 class="card-title">${item.title}</h3>
+                        <div class="card-footer">
+                            <span class="price">${item.price}</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        searchInput.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            const filtered = sampleData.filter(i => i.title.toLowerCase().includes(query) || i.category.includes(query));
+            renderCards(filtered);
+        });
+
+        renderCards(sampleData);
     </script>
 </body>
 </html>
