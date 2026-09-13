@@ -3,103 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Directory & Storefront</title>
-    <link rel="manifest" href="manifest.json">
+    <title>3KIG Command Center</title>
     <style>
         :root {
-            --primary: #2563eb;
-            --bg: #f8fafc;
-            --card-bg: #ffffff;
-            --text: #0f172a;
-            --border: #e2e8f0;
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text: #f8fafc;
+            --accent: #38bdf8;
+            --border: #334155;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
-        body { background: var(--bg); color: var(--text); padding-bottom: 2rem; }
-        
-        header {
-            position: sticky; top: 0; background: var(--card-bg); border-bottom: 1px solid var(--border);
-            padding: 1rem; z-index: 10; display: flex; flex-direction: column; gap: 0.75rem;
-        }
-        .search-bar {
-            width: 100%; padding: 0.75rem 1rem; font-size: 1rem; border: 1px solid var(--border);
-            border-radius: 8px; outline: none; background: var(--bg);
-        }
-        .categories {
-            display: flex; gap: 0.5rem; overflow-x: auto; padding-bottom: 0.25rem; scrollbar-width: none;
-        }
-        .categories::-webkit-scrollbar { display: none; }
-        .chip {
-            background: var(--bg); border: 1px solid var(--border); padding: 0.5rem 1rem;
-            border-radius: 20px; font-size: 0.875rem; white-space: nowrap; cursor: pointer;
-        }
-        .chip.active { background: var(--primary); color: white; border-color: var(--primary); }
-
-        .grid {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 1rem; padding: 1rem; max-width: 1200px; margin: 0 auto;
-        }
-        .card {
-            background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px;
-            overflow: hidden; display: flex; flex-direction: column; cursor: pointer;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-        .card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        .card-img { width: 100%; height: 160px; background: #cbd5e1; object-fit: cover; }
-        .card-body { padding: 1rem; display: flex; flex-direction: column; gap: 0.5rem; }
-        .card-title { font-size: 1.125rem; font-weight: 600; }
-        .card-cat { font-size: 0.75rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; }
-        .card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem; }
-        .price { font-weight: 600; color: var(--primary); }
+        body { background: var(--bg); color: var(--text); padding: 1.5rem; }
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem; }
+        .quick-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+        .chip { background: var(--card-bg); color: var(--text); border: 1px solid var(--border); padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer; font-size: 0.875rem; }
+        .chip:hover { border-color: var(--accent); }
+        .grid-panel { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; }
+        .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; display: flex; flex-direction: column; gap: 0.75rem; }
+        .card h3 { font-size: 1rem; color: var(--accent); }
+        .console-output { background: #020617; border: 1px solid var(--border); border-radius: 8px; padding: 1rem; font-family: monospace; font-size: 0.875rem; color: #34d399; height: 180px; overflow-y: auto; }
     </style>
 </head>
 <body>
-
     <header>
-        <input type="text" class="search-bar" placeholder="Search directory or storefront..." id="searchInput">
-        <div class="categories" id="categoryContainer">
-            <div class="chip active" data-cat="all">All</div>
-            <div class="chip" data-cat="services">Services</div>
-            <div class="chip" data-cat="retail">Retail</div>
-            <div class="chip" data-cat="food">Food & Drink</div>
-        </div>
+        <h2>3KIG Command Center</h2>
+        <span style="font-size: 0.875rem; color: #94a3b8;">Aethel Framework: Active</span>
     </header>
 
-    <main class="grid" id="cardGrid">
-        <!-- Dynamic Cards Injected Here -->
-    </main>
+    <div class="quick-actions">
+        <button class="chip" id="btn-sync">Sync Schema</button>
+        <button class="chip" id="btn-deploy">Deploy Tunnels</button>
+        <button class="chip" id="btn-export">Export State</button>
+    </div>
+
+    <div class="grid-panel">
+        <div class="card">
+            <h3>System Status & Telemetry</h3>
+            <div class="console-output" id="console">
+                [System] Initializing Aethel framework layers...<br>
+                [Commercial] Listings database schema ready.<br>
+                [Expansion] Category taxonomies loaded.<br>
+                [Corporate] Zero Trust routing awaiting activation.
+            </div>
+        </div>
+        <div class="card">
+            <h3>Pillar Mapping Overview</h3>
+            <p style="font-size: 0.875rem; color: #94a3b8; line-height: 1.5;">
+                Management and System layers are monitoring active data synchronization between the storefront directory and backend SQL instances.
+            </p>
+        </div>
+    </div>
 
     <script>
-        const sampleData = [
-            { id: 1, title: "Anchor Artisan Goods", category: "retail", price: "$25.00", img: "" },
-            { id: 2, title: "Metro Logistics & Transit", category: "services", price: "$120.00", img: "" },
-            { id: 3, title: "Heritage Spice Kitchen", category: "food", price: "$15.00", img: "" }
-        ];
-
-        const grid = document.getElementById('cardGrid');
-        const searchInput = document.getElementById('searchInput');
-
-        function renderCards(data) {
-            grid.innerHTML = data.map(item => `
-                <div class="card">
-                    <div class="card-img"></div>
-                    <div class="card-body">
-                        <span class="card-cat">${item.category}</span>
-                        <h3 class="card-title">${item.title}</h3>
-                        <div class="card-footer">
-                            <span class="price">${item.price}</span>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        searchInput.addEventListener('input', (e) => {
-            const query = e.target.value.toLowerCase();
-            const filtered = sampleData.filter(i => i.title.toLowerCase().includes(query) || i.category.includes(query));
-            renderCards(filtered);
+        const consoleEl = document.getElementById('console');
+        
+        document.getElementById('btn-sync').addEventListener('click', () => {
+            consoleEl.innerHTML += `<br>[Sync] Updating businesses, listings, and categories schemas...`;
+            consoleEl.scrollTop = consoleEl.scrollHeight;
         });
 
-        renderCards(sampleData);
+        document.getElementById('btn-deploy').addEventListener('click', () => {
+            consoleEl.innerHTML += `<br>[Deploy] Pushing configuration to Cloudflare Zero Trust tunnel...`;
+            consoleEl.scrollTop = consoleEl.scrollHeight;
+        });
     </script>
 </body>
 </html>
