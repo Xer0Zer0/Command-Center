@@ -5,85 +5,74 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>3KIG Command Center</title>
     <style>
-        :root {
-            --bg: #0f172a;
-            --card-bg: #1e293b;
-            --text: #f8fafc;
-            --accent: #38bdf8;
-            --border: #334155;
-            --success: #34d399;
-        }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
-        body { background: var(--bg); color: var(--text); padding: 1.5rem; }
-        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem; }
-        .quick-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
-        .chip { background: var(--card-bg); color: var(--text); border: 1px solid var(--border); padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer; font-size: 0.875rem; }
-        .chip:hover { border-color: var(--accent); }
-        .grid-panel { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; }
-        .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; display: flex; flex-direction: column; gap: 0.75rem; }
-        .card h3 { font-size: 1rem; color: var(--accent); }
-        .console-output { background: #020617; border: 1px solid var(--border); border-radius: 8px; padding: 1rem; font-family: monospace; font-size: 0.8125rem; color: var(--success); height: 200px; overflow-y: auto; line-height: 1.4; }
-        .pillar-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem; font-size: 0.875rem; }
-        .pillar-item { background: #0f172a; border: 1px solid var(--border); padding: 0.5rem; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; }
-        .status-dot { width: 8px; height: 8px; background: var(--success); border-radius: 50%; box-shadow: 0 0 8px var(--success); }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background-color: #0d1117; color: #c9d1d9; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 20px; }
+        header { background: #161b22; padding: 15px; border-radius: 6px; margin-bottom: 20px; font-size: 1.25rem; font-weight: bold; border: 1px solid #30363d; }
+        .status-pill { font-size: 0.75rem; background: #238636; padding: 2px 8px; border-radius: 12px; float: right; color: white; }
+        .chat-container { display: flex; flex-direction: column; gap: 10px; max-height: 60vh; overflow-y: auto; margin-bottom: 20px; }
     </style>
 </head>
 <body>
     <header>
-        <h2>3KIG Command Center</h2>
-        <span style="font-size: 0.875rem; color: #94a3b8;">Aethel Framework: Active</span>
+        3KIG Command Center
+        <span class="status-pill">Active</span>
     </header>
-
-    <div class="quick-actions">
-        <button class="chip" id="btn-sync">Sync Schemas</button>
-        <button class="chip" id="btn-audit">Run Pillar Audit</button>
-        <button class="chip" id="btn-clear">Clear Logs</button>
+    
+    <div class="chat-container" id="chatContainer">
+        <!-- Dynamic logs injected here -->
     </div>
 
-    <div class="grid-panel">
-        <div class="card">
-            <h3>Live Telemetry & Event Tracker</h3>
-            <div class="console-output" id="console">
-                [System] Command Center initialized successfully.
-            </div>
-        </div>
-        <div class="card">
-            <h3>Aethel Framework Pillars</h3>
-            <div class="pillar-grid">
-                <div class="pillar-item"><span>Corporate</span><div class="status-dot"></div></div>
-                <div class="pillar-item"><span>Commercial</span><div class="status-dot"></div></div>
-                <div class="pillar-item"><span>Community</span><div class="status-dot"></div></div>
-                <div class="pillar-item"><span>Management</span><div class="status-dot"></div></div>
-                <div class="pillar-item"><span>Expansion</span><div class="status-dot"></div></div>
-                <div class="pillar-item"><span>System</span><div class="status-dot"></div></div>
-            </div>
-        </div>
+    <div style="display: flex; gap: 10px;">
+        <input type="text" id="commandInput" placeholder="Enter command for Aethel..." style="flex: 1; padding: 10px; background: #161b22; border: 1px solid #30363d; color: #c9d1d9; border-radius: 6px;">
+        <button onclick="sendCommand()" style="padding: 10px 20px; background: #238636; color: white; border: none; border-radius: 6px; cursor: pointer;">Send</button>
     </div>
-
+    
     <script>
-        const consoleEl = document.getElementById('console');
+        const ws = new WebSocket("ws://127.0.0.1:8765");
+        const container = document.getElementById("chatContainer");
 
-        function logEvent(pillar, message) {
-            const timestamp = new Date().toLocaleTimeString();
-            consoleEl.innerHTML += `<br>[${timestamp}] [${pillar}] ${message}`;
-            consoleEl.scrollTop = consoleEl.scrollHeight;
+        function appendMessage(sender, text) {
+            const msgDiv = document.createElement("div");
+            msgDiv.style.background = "#161b22";
+            msgDiv.style.border = "1px solid #30363d";
+            msgDiv.style.padding = "10px";
+            msgDiv.style.borderRadius = "6px";
+            msgDiv.innerHTML = `<strong style="color: #58a6ff;">${sender}:</strong> ${text}`;
+            container.appendChild(msgDiv);
+            container.scrollTop = container.scrollHeight;
         }
 
-        document.getElementById('btn-sync').addEventListener('click', () => {
-            logEvent('System', 'Syncing businesses, listings, and categories...');
-            setTimeout(() => logEvent('Commercial', 'Listings data structures validated.'), 400);
-            setTimeout(() => logEvent('Expansion', 'Category taxonomies updated.'), 800);
-        });
+        ws.onopen = function() {
+            appendMessage("System", "Connected to Aethel Orchestrator");
+            ws.send(JSON.stringify({
+                agent: "System",
+                action: "ping",
+                payload: { status: "client_active" }
+            }));
+        };
 
-        document.getElementById('btn-audit').addEventListener('click', () => {
-            logEvent('Management', 'Initiating full Aethel pillar health check...');
-            setTimeout(() => logEvent('Corporate', 'Verification flags verified.'), 500);
-            setTimeout(() => logEvent('Community', 'Directory profile indices stable.'), 1000);
-        });
+        ws.onmessage = function(event) {
+            const data = JSON.parse(event.data);
+            appendMessage(data.agent || "Orchestrator", JSON.stringify(data.data || data));
+        };
 
-        document.getElementById('btn-clear').addEventListener('click', () => {
-            consoleEl.innerHTML = `[System] Tracker logs cleared.`;
-        });
+        ws.onerror = function(error) {
+            appendMessage("System", "WebSocket error occurred");
+        };
+
+        function sendCommand() {
+            const input = document.getElementById("commandInput");
+            if (!input.value) return;
+            
+            appendMessage("User", input.value);
+            ws.send(JSON.stringify({
+                agent: "System",
+                action: "execute",
+                payload: { command: input.value }
+            }));
+            
+            input.value = "";
+        }
     </script>
 </body>
 </html>
