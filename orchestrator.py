@@ -3,6 +3,7 @@ import json
 import sqlite3
 import os
 import websockets
+import urllib.request
 
 def init_db():
     conn = sqlite3.connect("aethel.db")
@@ -77,9 +78,28 @@ async def handle_client(websocket):
                     result["data"] = {"message": "Unknown memory action"}
             elif agent == "AnalyticsAgent":
                 if action == "get_metrics":
-                    result["data"] = {"total_agents": 7, "storage_mode": "WAL", "system_status": "optimal"}
+                    result["data"] = {"total_agents": 8, "storage_mode": "WAL", "system_status": "optimal"}
                 else:
                     result["data"] = {"message": "Unknown analytics action"}
+            elif agent == "LLMAgent":
+                if action == "generate":
+                    prompt = payload.get("prompt", "Hello Aethel")
+                    model = payload.get("model", "llama3")
+                    try:
+                        req_data = json.dumps({"model": model, "prompt": prompt, "stream": False}).encode("utf-8")
+                        req = urllib.request.Request(
+                            "http://localhost:11434/api/generate",
+                            data=req_data,
+                            headers={"Content-Type": "application/json"}
+                        )
+                        with urllib.request.urlopen(req, timeout=30) as response:
+                            res_body = json.loads(response.read().decode("utf-8"))
+                            llm_text = res_body.get("response", "No response generated")
+                            result["data"] = {"model": model, "prompt": prompt, "response": llm_text}
+                    except Exception as e:
+                        result["data"] = {"error": str(e), "message": "Failed to connect to local Ollama instance"}
+                else:
+                    result["data"] = {"message": "Unknown LLM action"}
             else:
                 result["data"] = {"message": f"Agent {agent} executed {action}"}
                 
@@ -103,4 +123,4 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-                    
+    
