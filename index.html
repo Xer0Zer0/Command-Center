@@ -48,6 +48,14 @@
     </div>
 
     <div class="card">
+        <h3>Semantic Vector Search</h3>
+        <div style="display: flex; gap: 10px; margin-bottom: 10px; flex-direction: column;">
+            <input type="text" id="vector-query" placeholder="Search logs by semantic meaning..." value="sovereignty status" style="padding: 8px; background: #010409; color: #c9d1d9; border: 1px solid #30363d; border-radius: 4px; font-family: monospace;">
+            <button onclick="triggerVectorSearch()">Execute Semantic Search</button>
+        </div>
+    </div>
+
+    <div class="card">
         <h3>Live Output Stream</h3>
         <pre id="output">Initializing WebSocket connection...</pre>
     </div>
@@ -81,12 +89,17 @@
             document.getElementById("stat-count").innerText = commandCount;
             const message = JSON.stringify({ agent, action, payload });
             ws.send(message);
-            output.innerText = `Dispatched -> Agent: ${agent} | Action: ${action}`;
+            output.innerText = `Disraped -> Agent: ${agent} | Action: ${action}`;
         }
 
         function triggerLLM() {
             const promptText = document.getElementById("llm-prompt").value;
             sendAgentCommand('LLMAgent', 'generate', { prompt: promptText, model: 'llama3' });
+        }
+
+        function triggerVectorSearch() {
+            const queryText = document.getElementById("vector-query").value;
+            sendAgentCommand('VectorAgent', 'semantic_search', { query: queryText });
         }
     </script>
 </body>
