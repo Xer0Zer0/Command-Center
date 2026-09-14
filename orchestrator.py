@@ -65,6 +65,11 @@ async def handle_client(websocket):
                     result["data"] = {"job": task_name, "status": "queued", "message": f"Background task {task_name} initialized"}
                 else:
                     result["data"] = {"message": "Unknown worker action"}
+            elif agent == "ConfigAgent":
+                if action == "get_config":
+                    result["data"] = {"mode": "offline", "sovereignty": "strict", "version": "1.0.0"}
+                else:
+                    result["data"] = {"message": "Unknown config action"}
             else:
                 result["data"] = {"message": f"Agent {agent} executed {action}"}
                 
