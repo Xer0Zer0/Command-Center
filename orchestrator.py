@@ -75,6 +75,11 @@ async def handle_client(websocket):
                     result["data"] = {"context_scope": "sovereign", "stored_items": 12, "status": "active_recall"}
                 else:
                     result["data"] = {"message": "Unknown memory action"}
+            elif agent == "AnalyticsAgent":
+                if action == "get_metrics":
+                    result["data"] = {"total_agents": 7, "storage_mode": "WAL", "system_status": "optimal"}
+                else:
+                    result["data"] = {"message": "Unknown analytics action"}
             else:
                 result["data"] = {"message": f"Agent {agent} executed {action}"}
                 
@@ -98,4 +103,4 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-    
+                    
