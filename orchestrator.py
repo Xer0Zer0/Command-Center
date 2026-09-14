@@ -53,6 +53,12 @@ async def handle_client(websocket):
                     result["data"] = {"logs": logs}
                 else:
                     result["data"] = {"message": "Unknown database action"}
+            elif agent == "SearchAgent":
+                if action == "web_search":
+                    query = payload.get("query", "Aethel intelligence")
+                    result["data"] = {"query": query, "results": [f"Simulated result for: {query}"]}
+                else:
+                    result["data"] = {"message": "Unknown search action"}
             else:
                 result["data"] = {"message": f"Agent {agent} executed {action}"}
                 
@@ -76,4 +82,4 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-                                      
+                    
