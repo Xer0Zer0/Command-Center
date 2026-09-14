@@ -42,6 +42,16 @@ async def handle_client(websocket):
                 if action == "list_dir":
                     files = os.listdir(".")
                     result["data"] = {"files": files}
+                elif action == "export_logs":
+                    conn = sqlite3.connect("aethel.db")
+                    cursor = conn.cursor()
+                    cursor.execute("SELECT id, agent, action, payload, timestamp FROM command_logs")
+                    rows = cursor.fetchall()
+                    conn.close()
+                    export_path = "aethel_export.json"
+                    with open(export_path, "w") as f:
+                        json.dump(rows, f, indent=2)
+                    result["data"] = {"status": "success", "file": export_path, "exported_records": len(rows)}
                 else:
                     result["data"] = {"message": "Unknown file action"}
             elif agent == "DatabaseAgent":
