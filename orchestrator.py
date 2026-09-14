@@ -5,6 +5,8 @@ import os
 import websockets
 import urllib.request
 
+task_queue = asyncio.Queue()
+
 def init_db():
     conn = sqlite3.connect("aethel.db")
     conn.execute("PRAGMA journal_mode=WAL;")
@@ -19,6 +21,23 @@ def init_db():
     """)
     conn.commit()
     conn.close()
+
+async def worker_processor():
+    while True:
+        task_data = await task_queue.get()
+        task_name = task_data.get("task")
+        priority = task_data.get("priority", "normal")
+        print(f"Processing background job -> Task: {task_name} | Priority: {priority}")
+        await asyncio.sleep(2) # Simulate background processing
+        conn = sqlite3.connect("aethel.db")
+        conn.execute(
+            "INSERT INTO command_logs (agent, action, payload) VALUES (?, ?, ?)",
+            ("WorkerAgent", "complete_job", json.dumps({"task": task_name, "status": "completed"}))
+        )
+        conn.commit()
+        conn.close()
+        task_queue.task_done()
+        print(f"Background job completed -> Task: {task_name}")
 
 async def background_heartbeat():
     while True:
@@ -88,7 +107,8 @@ async def handle_client(websocket):
                 if action == "dispatch_job":
                     task_name = payload.get("task", "sync_index")
                     priority = payload.get("priority", "normal")
-                    result["data"] = {"job": task_name, "priority": priority, "status": "queued", "message": f"Background task {task_name} initialized with {priority} priority"}
+                    await task_queue.put({"task": task_name, "priority": priority})
+                    result["data"] = {"job": task_name, "priority": priority, "status": "queued", "queue_size": task_queue.qsize()}
                 else:
                     result["data"] = {"message": "Unknown worker action"}
             elif agent == "ConfigAgent":
@@ -104,7 +124,7 @@ async def handle_client(websocket):
                     result["data"] = {"message": "Unknown memory action"}
             elif agent == "AnalyticsAgent":
                 if action == "get_metrics":
-                    result["data"] = {"total_agents": 9, "storage_mode": "WAL", "system_status": "optimal", "metrics_scope": payload.get("scope", "full")}
+                    result["data"] = {"total_agents": 9, "storage_mode": "WAL", "system_status": "optimal", "active_queue": task_queue.qsize()}
                 else:
                     result["data"] = {"message": "Unknown analytics action"}
             elif agent == "LLMAgent":
@@ -158,10 +178,11 @@ async def handle_client(websocket):
 async def main():
     init_db()
     asyncio.create_task(background_heartbeat())
+    asyncio.create_task(worker_processor())
     server = await websockets.serve(handle_client, "127.0.0.1", 8765)
     print("Aethel Orchestrator running on ws://127.0.0.1:8765")
     await server.wait_closed()
 
 if __name__ == "__main__":
     asyncio.run(main())
-            
+    
