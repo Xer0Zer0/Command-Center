@@ -40,6 +40,14 @@
     </div>
 
     <div class="card">
+        <h3>Local LLM Control</h3>
+        <div style="display: flex; gap: 10px; margin-bottom: 10px; flex-direction: column;">
+            <input type="text" id="llm-prompt" placeholder="Enter prompt for local LLM..." value="Summarize the core objectives of Aethel." style="padding: 8px; background: #010409; color: #c9d1d9; border: 1px solid #30363d; border-radius: 4px; font-family: monospace;">
+            <button onclick="triggerLLM()">Query Local LLM</button>
+        </div>
+    </div>
+
+    <div class="card">
         <h3>Live Output Stream</h3>
         <pre id="output">Initializing WebSocket connection...</pre>
     </div>
@@ -74,6 +82,11 @@
             const message = JSON.stringify({ agent, action, payload });
             ws.send(message);
             output.innerText = `Dispatched -> Agent: ${agent} | Action: ${action}`;
+        }
+
+        function triggerLLM() {
+            const promptText = document.getElementById("llm-prompt").value;
+            sendAgentCommand('LLMAgent', 'generate', { prompt: promptText, model: 'llama3' });
         }
     </script>
 </body>
