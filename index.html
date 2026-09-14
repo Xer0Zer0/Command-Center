@@ -13,6 +13,7 @@
         .metric span { display: block; font-size: 18px; color: #7ee787; margin-top: 5px; }
         button { padding: 8px 12px; background: #21262d; color: #c9d1d9; border: 1px solid #30363d; border-radius: 6px; cursor: pointer; }
         button:hover { background: #30363d; }
+        input[type="text"] { padding: 8px; background: #010409; color: #c9d1d9; border: 1px solid #30363d; border-radius: 4px; font-family: monospace; width: 100%; box-sizing: border-box; }
         pre { background: #010409; padding: 10px; border-radius: 4px; overflow-x: auto; color: #7ee787; }
     </style>
 </head>
@@ -26,24 +27,32 @@
     </div>
 
     <div class="card">
+        <h3>Runtime Payload Injection</h3>
+        <div style="margin-bottom: 10px;">
+            <label style="font-size: 12px; color: #8b949e; display: block; margin-bottom: 5px;">Custom JSON Payload / Arguments:</label>
+            <input type="text" id="payload-input" value='{"limit": 5, "priority": "high", "scope": "full"}'>
+        </div>
+    </div>
+
+    <div class="card">
         <h3>Agent Control Panel</h3>
         <div style="display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap;">
-            <button onclick="sendAgentCommand('System', 'ping')">Ping System</button>
-            <button onclick="sendAgentCommand('FileAgent', 'list_dir')">List Files</button>
-            <button onclick="sendAgentCommand('FileAgent', 'export_logs')">Export Audit Logs</button>
-            <button onclick="sendAgentCommand('DatabaseAgent', 'query_logs')">View Audit Logs</button>
-            <button onclick="sendAgentCommand('SearchAgent', 'web_search', {query: 'Aethel orchestrator'})">Search Web</button>
-            <button onclick="sendAgentCommand('WorkerAgent', 'dispatch_job', {task: 'heavy_sync'})">Dispatch Worker</button>
-            <button onclick="sendAgentCommand('ConfigAgent', 'get_config')">Get Config</button>
-            <button onclick="sendAgentCommand('MemoryAgent', 'recall_context')">Recall Memory</button>
-            <button onclick="sendAgentCommand('AnalyticsAgent', 'get_metrics')">Get Analytics</button>
+            <button onclick="sendAgentCommandWithPayload('System', 'ping')">Ping System</button>
+            <button onclick="sendAgentCommandWithPayload('FileAgent', 'list_dir')">List Files</button>
+            <button onclick="sendAgentCommandWithPayload('FileAgent', 'export_logs')">Export Audit Logs</button>
+            <button onclick="sendAgentCommandWithPayload('DatabaseAgent', 'query_logs')">View Audit Logs</button>
+            <button onclick="sendAgentCommandWithPayload('SearchAgent', 'web_search', {query: 'Aethel orchestrator'})">Search Web</button>
+            <button onclick="sendAgentCommandWithPayload('WorkerAgent', 'dispatch_job', {task: 'heavy_sync'})">Dispatch Worker</button>
+            <button onclick="sendAgentCommandWithPayload('ConfigAgent', 'get_config')">Get Config</button>
+            <button onclick="sendAgentCommandWithPayload('MemoryAgent', 'recall_context')">Recall Memory</button>
+            <button onclick="sendAgentCommandWithPayload('AnalyticsAgent', 'get_metrics')">Get Analytics</button>
         </div>
     </div>
 
     <div class="card">
         <h3>Local LLM Control</h3>
         <div style="display: flex; gap: 10px; margin-bottom: 10px; flex-direction: column;">
-            <input type="text" id="llm-prompt" placeholder="Enter prompt for local LLM..." value="Summarize the core objectives of Aethel." style="padding: 8px; background: #010409; color: #c9d1d9; border: 1px solid #30363d; border-radius: 4px; font-family: monospace;">
+            <input type="text" id="llm-prompt" value="Summarize the core objectives of Aethel.">
             <button onclick="triggerLLM()">Query Local LLM</button>
         </div>
     </div>
@@ -51,7 +60,7 @@
     <div class="card">
         <h3>Semantic Vector Search</h3>
         <div style="display: flex; gap: 10px; margin-bottom: 10px; flex-direction: column;">
-            <input type="text" id="vector-query" placeholder="Search logs by semantic meaning..." value="sovereignty status" style="padding: 8px; background: #010409; color: #c9d1d9; border: 1px solid #30363d; border-radius: 4px; font-family: monospace;">
+            <input type="text" id="vector-query" value="sovereignty status">
             <button onclick="triggerVectorSearch()">Execute Semantic Search</button>
         </div>
     </div>
@@ -84,6 +93,15 @@
             output.innerText = "WebSocket Error: " + JSON.stringify(error);
         };
 
+        function getDynamicPayload(fallback = {}) {
+            try {
+                const raw = document.getElementById("payload-input").value;
+                return JSON.parse(raw);
+            } catch (e) {
+                return fallback;
+            }
+        }
+
         function sendAgentCommand(agent, action, payload = {}) {
             startTime = Date.now();
             commandCount++;
@@ -93,6 +111,11 @@
             output.innerText = `Dispatched -> Agent: ${agent} | Action: ${action}`;
         }
 
+        function sendAgentCommandWithPayload(agent, action, defaultPayload = {}) {
+            const customPayload = getDynamicPayload(defaultPayload);
+            sendAgentCommand(agent, action, customPayload);
+        }
+
         function triggerLLM() {
             const promptText = document.getElementById("llm-prompt").value;
             sendAgentCommand('LLMAgent', 'generate', { prompt: promptText, model: 'llama3' });
@@ -100,7 +123,9 @@
 
         function triggerVectorSearch() {
             const queryText = document.getElementById("vector-query").value;
-            sendAgentCommand('VectorAgent', 'semantic_search', { query: queryText });
+            const customPayload = getDynamicPayload({ query: queryText, top_k: 2 });
+            customPayload.query = queryText; // ensure current field overrides
+            sendAgentCommand('VectorAgent', 'semantic_search', customPayload);
         }
     </script>
 </body>
