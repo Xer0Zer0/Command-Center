@@ -97,7 +97,6 @@
         ws.onmessage = (event) => {
             const res = JSON.parse(event.data);
             
-            // Handle asynchronous broadcast events separately from direct response payloads
             if (res.event) {
                 const timestamp = new Date().toLocaleTimeString();
                 output.innerText = `[BROADCAST @ ${timestamp}] ${JSON.stringify(res, null, 2)}\n\n` + output.innerText;
