@@ -8,6 +8,7 @@ import urllib.parse
 import re
 
 task_queue = asyncio.Queue()
+connected_clients = set()
 
 def init_db():
     conn = sqlite3.connect("aethel.db")
@@ -41,6 +42,13 @@ def compute_similarity(text1, text2):
     union = tokens1.union(tokens2)
     return round(len(intersection) / len(union), 2)
 
+async def broadcast(message):
+    if connected_clients:
+        await asyncio.gather(
+            *[client.send(json.dumps(message)) for client in connected_clients],
+            return_exceptions=True
+        )
+
 async def worker_processor():
     while True:
         task_data = await task_queue.get()
@@ -48,6 +56,7 @@ async def worker_processor():
         priority = task_data.get("priority", "normal")
         print(f"Processing background job -> Task: {task_name} | Priority: {priority}")
         await asyncio.sleep(2)
+        
         conn = sqlite3.connect("aethel.db")
         conn.execute(
             "INSERT INTO command_logs (agent, action, payload) VALUES (?, ?, ?)",
@@ -55,6 +64,15 @@ async def worker_processor():
         )
         conn.commit()
         conn.close()
+        
+        # Broadcast background job completion to all connected dashboards
+        await broadcast({
+            "event": "background_job_completed",
+            "agent": "WorkerAgent",
+            "task": task_name,
+            "status": "completed"
+        })
+        
         task_queue.task_done()
         print(f"Background job completed -> Task: {task_name}")
 
@@ -68,9 +86,17 @@ async def background_heartbeat():
         )
         conn.commit()
         conn.close()
-        print("Heartbeat recorded to audit log.")
+        
+        await broadcast({
+            "event": "heartbeat",
+            "agent": "System",
+            "status": "healthy",
+            "mode": "offline"
+        })
+        print("Heartbeat recorded and broadcasted.")
 
 async def handle_client(websocket):
+    connected_clients.add(websocket)
     print("Client connected")
     try:
         async for message in websocket:
@@ -233,6 +259,8 @@ async def handle_client(websocket):
             await websocket.send(json.dumps(result))
     except websockets.exceptions.ConnectionClosed:
         print("Client disconnected")
+    finally:
+        connected_clients.remove(websocket)
 
 async def main():
     init_db()
