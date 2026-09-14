@@ -8,6 +8,9 @@
         body { font-family: monospace; background: #0d1117; color: #c9d1d9; margin: 0; padding: 20px; }
         h2 { color: #58a6ff; }
         .card { background: #161b22; border: 1px solid #30363d; padding: 15px; border-radius: 6px; margin-bottom: 15px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 15px; }
+        .metric { background: #010409; padding: 10px; border-radius: 4px; border: 1px solid #30363d; text-align: center; }
+        .metric span { display: block; font-size: 18px; color: #7ee787; margin-top: 5px; }
         button { padding: 8px 12px; background: #21262d; color: #c9d1d9; border: 1px solid #30363d; border-radius: 6px; cursor: pointer; }
         button:hover { background: #30363d; }
         pre { background: #010409; padding: 10px; border-radius: 4px; overflow-x: auto; color: #7ee787; }
@@ -16,6 +19,12 @@
 <body>
     <h2>3KIG Command Center</h2>
     
+    <div class="grid">
+        <div class="metric">Status<span id="stat-conn">Offline</span></div>
+        <div class="metric">Dispatched<span id="stat-count">0</span></div>
+        <div class="metric">Latency<span id="stat-latency">0ms</span></div>
+    </div>
+
     <div class="card">
         <h3>Agent Control Panel</h3>
         <div style="display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap;">
@@ -35,26 +44,34 @@
     <script>
         const ws = new WebSocket("ws://127.0.0.1:8765");
         const output = document.getElementById("output");
+        let commandCount = 0;
+        let startTime = 0;
 
         ws.onopen = () => {
+            document.getElementById("stat-conn").innerText = "Online";
             output.innerText = "Connected to Aethel Orchestrator.";
         };
 
         ws.onmessage = (event) => {
+            const latency = Date.now() - startTime;
+            document.getElementById("stat-latency").innerText = latency + "ms";
             const res = JSON.parse(event.data);
             output.innerText = JSON.stringify(res, null, 2);
         };
 
         ws.onerror = (error) => {
+            document.getElementById("stat-conn").innerText = "Error";
             output.innerText = "WebSocket Error: " + JSON.stringify(error);
         };
 
         function sendAgentCommand(agent, action, payload = {}) {
+            startTime = Date.now();
+            commandCount++;
+            document.getElementById("stat-count").innerText = commandCount;
             const message = JSON.stringify({ agent, action, payload });
             ws.send(message);
             output.innerText = `Dispatched -> Agent: ${agent} | Action: ${action}`;
         }
     </script>
 </body>
-    </html>
-    
+</html>
