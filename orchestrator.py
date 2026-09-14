@@ -43,6 +43,16 @@ async def handle_client(websocket):
                     result["data"] = {"files": files}
                 else:
                     result["data"] = {"message": "Unknown file action"}
+            elif agent == "DatabaseAgent":
+                if action == "query_logs":
+                    conn = sqlite3.connect("aethel.db")
+                    cursor = conn.cursor()
+                    cursor.execute("SELECT id, agent, action, timestamp FROM command_logs ORDER BY id DESC LIMIT 10")
+                    logs = cursor.fetchall()
+                    conn.close()
+                    result["data"] = {"logs": logs}
+                else:
+                    result["data"] = {"message": "Unknown database action"}
             else:
                 result["data"] = {"message": f"Agent {agent} executed {action}"}
                 
@@ -66,4 +76,4 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-    
+                    
