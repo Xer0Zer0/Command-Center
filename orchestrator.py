@@ -5,6 +5,7 @@ import os
 import websockets
 import urllib.request
 import urllib.parse
+import re
 
 task_queue = asyncio.Queue()
 
@@ -30,6 +31,15 @@ def init_db():
     """)
     conn.commit()
     conn.close()
+
+def compute_similarity(text1, text2):
+    tokens1 = set(re.findall(r'\w+', text1.lower()))
+    tokens2 = set(re.findall(r'\w+', text2.lower()))
+    if not tokens1 or not tokens2:
+        return 0.0
+    intersection = tokens1.intersection(tokens2)
+    union = tokens1.union(tokens2)
+    return round(len(intersection) / len(union), 2)
 
 async def worker_processor():
     while True:
@@ -118,7 +128,6 @@ async def handle_client(websocket):
                         )
                         with urllib.request.urlopen(req, timeout=15) as response:
                             html_content = response.read().decode('utf-8')
-                            import re
                             snippets = re.findall(r'<a class="result__snippet[^>]*>(.*?)</a>', html_content)
                             clean_snippets = [re.sub(r'<.*?>', '', s) for s in snippets[:5]]
                             result["data"] = {"query": query, "results": clean_snippets if clean_snippets else ["No external snippets parsed"]}
@@ -185,13 +194,28 @@ async def handle_client(websocket):
                 if action == "semantic_search":
                     query_text = payload.get("query", "orchestrator state")
                     top_k = payload.get("top_k", 2)
+                    
+                    conn = sqlite3.connect("aethel.db")
+                    cursor = conn.cursor()
+                    cursor.execute("SELECT id, content, tag FROM memories")
+                    rows = cursor.fetchall()
+                    conn.close()
+                    
+                    scored_matches = []
+                    for row in rows:
+                        sim = compute_similarity(query_text, row[1])
+                        scored_matches.append({"id": row[0], "content": row[1], "tag": row[2], "similarity": sim})
+                    
+                    scored_matches.sort(key=lambda x: x["similarity"], reverse=True)
+                    top_matches = scored_matches[:top_k]
+                    
+                    if not top_matches:
+                        top_matches = [{"id": 0, "content": "No matching vector records found", "tag": "none", "similarity": 0.0}]
+                        
                     result["data"] = {
                         "query": query_text, 
                         "top_k": top_k,
-                        "matches": [
-                            {"id": 3, "agent": "System", "similarity": 0.94, "content": "Aethel orchestrator active and healthy"},
-                            {"id": 7, "agent": "ConfigAgent", "similarity": 0.88, "content": "strict sovereignty offline configuration loaded"}
-                        ][:top_k]
+                        "matches": top_matches
                     }
                 else:
                     result["data"] = {"message": "Unknown vector action"}
@@ -220,4 +244,4 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-                
+                    
