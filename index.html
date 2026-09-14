@@ -24,6 +24,7 @@
         <div class="metric">Status<span id="stat-conn">Offline</span></div>
         <div class="metric">Dispatched<span id="stat-count">0</span></div>
         <div class="metric">Latency<span id="stat-latency">0ms</span></div>
+        <div class="metric">Uptime<span id="stat-uptime">00:00</span></div>
     </div>
 
     <div class="card">
@@ -75,8 +76,19 @@
         const output = document.getElementById("output");
         let commandCount = 0;
         let startTime = 0;
+        let connectionStartTime = Date.now();
+
+        setInterval(() => {
+            if (document.getElementById("stat-conn").innerText === "Online") {
+                const secondsElapsed = Math.floor((Date.now() - connectionStartTime) / 1000);
+                const mins = String(Math.floor(secondsElapsed / 60)).padStart(2, '0');
+                const secs = String(secondsElapsed % 60).padStart(2, '0');
+                document.getElementById("stat-uptime").innerText = `${mins}:${secs}`;
+            }
+        }, 1000);
 
         ws.onopen = () => {
+            connectionStartTime = Date.now();
             document.getElementById("stat-conn").innerText = "Online";
             output.innerText = "Connected to Aethel Orchestrator.";
         };
@@ -124,7 +136,7 @@
         function triggerVectorSearch() {
             const queryText = document.getElementById("vector-query").value;
             const customPayload = getDynamicPayload({ query: queryText, top_k: 2 });
-            customPayload.query = queryText; // ensure current field overrides
+            customPayload.query = queryText;
             sendAgentCommand('VectorAgent', 'semantic_search', customPayload);
         }
     </script>
