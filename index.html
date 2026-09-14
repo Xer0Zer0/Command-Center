@@ -5,86 +5,52 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>3KIG Command Center</title>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background-color: #0d1117; color: #c9d1d9; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 20px; }
-        header { background: #161b22; padding: 15px; border-radius: 6px; margin-bottom: 20px; font-size: 1.25rem; font-weight: bold; border: 1px solid #30363d; }
-        .status-pill { font-size: 0.75rem; background: #238636; padding: 2px 8px; border-radius: 12px; float: right; color: white; }
-        .chat-container { display: flex; flex-direction: column; gap: 10px; max-height: 60vh; overflow-y: auto; margin-bottom: 20px; }
+        body { font-family: monospace; background: #0d1117; color: #c9d1d9; margin: 0; padding: 20px; }
+        h2 { color: #58a6ff; }
+        .card { background: #161b22; border: 1px solid #30363d; padding: 15px; border-radius: 6px; margin-bottom: 15px; }
+        button { padding: 8px 12px; background: #21262d; color: #c9d1d9; border: 1px solid #30363d; border-radius: 6px; cursor: pointer; }
+        button:hover { background: #30363d; }
+        pre { background: #010409; padding: 10px; border-radius: 4px; overflow-x: auto; color: #7ee787; }
     </style>
 </head>
 <body>
-    <header>
-        3KIG Command Center
-        <span class="status-pill">Active</span>
-    </header>
+    <h2>3KIG Command Center</h2>
     
-    <div class="chat-container" id="chatContainer">
-        <!-- Dynamic logs injected here -->
+    <div class="card">
+        <h3>Agent Control Panel</h3>
+        <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+            <button onclick="sendAgentCommand('System', 'ping')">Ping System</button>
+            <button onclick="sendAgentCommand('FileAgent', 'list_dir')">List Files</button>
+            <button onclick="sendAgentCommand('DatabaseAgent', 'query_logs')">View Audit Logs</button>
+        </div>
     </div>
 
-    <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-        <button onclick="sendAgentCommand('FileAgent', 'list_dir')" style="padding: 8px 12px; background: #21262d; color: #c9d1d9; border: 1px solid #30363d; border-radius: 6px; cursor: pointer;">List Files</button>
+    <div class="card">
+        <h3>Live Output Stream</h3>
+        <pre id="output">Initializing WebSocket connection...</pre>
     </div>
 
-    <div style="display: flex; gap: 10px;">
-        <input type="text" id="commandInput" placeholder="Enter command for Aethel..." style="flex: 1; padding: 10px; background: #161b22; border: 1px solid #30363d; color: #c9d1d9; border-radius: 6px;">
-        <button onclick="sendCommand()" style="padding: 10px 20px; background: #238636; color: white; border: none; border-radius: 6px; cursor: pointer;">Send</button>
-    </div>
-    
     <script>
         const ws = new WebSocket("ws://127.0.0.1:8765");
-        const container = document.getElementById("chatContainer");
+        const output = document.getElementById("output");
 
-        function appendMessage(sender, text) {
-            const msgDiv = document.createElement("div");
-            msgDiv.style.background = "#161b22";
-            msgDiv.style.border = "1px solid #30363d";
-            msgDiv.style.padding = "10px";
-            msgDiv.style.borderRadius = "6px";
-            msgDiv.innerHTML = `<strong style="color: #58a6ff;">${sender}:</strong> ${text}`;
-            container.appendChild(msgDiv);
-            container.scrollTop = container.scrollHeight;
-        }
-
-        ws.onopen = function() {
-            appendMessage("System", "Connected to Aethel Orchestrator");
-            ws.send(JSON.stringify({
-                agent: "System",
-                action: "ping",
-                payload: { status: "client_active" }
-            }));
+        ws.onopen = () => {
+            output.innerText = "Connected to Aethel Orchestrator.";
         };
 
-        ws.onmessage = function(event) {
-            const data = JSON.parse(event.data);
-            appendMessage(data.agent || "Orchestrator", JSON.stringify(data.data || data));
+        ws.onmessage = (event) => {
+            const res = JSON.parse(event.data);
+            output.innerText = JSON.stringify(res, null, 2);
         };
 
-        ws.onerror = function(error) {
-            appendMessage("System", "WebSocket error occurred");
+        ws.onerror = (error) => {
+            output.innerText = "WebSocket Error: " + JSON.stringify(error);
         };
 
-        function sendAgentCommand(agentName, actionName) {
-            appendMessage("User", `Requesting ${actionName} from ${agentName}`);
-            ws.send(JSON.stringify({
-                agent: agentName,
-                action: actionName,
-                payload: {}
-            }));
-        }
-
-        function sendCommand() {
-            const input = document.getElementById("commandInput");
-            if (!input.value) return;
-            
-            appendMessage("User", input.value);
-            ws.send(JSON.stringify({
-                agent: "System",
-                action: "execute",
-                payload: { command: input.value }
-            }));
-            
-            input.value = "";
+        function sendAgentCommand(agent, action, payload = {}) {
+            const message = JSON.stringify({ agent, action, payload });
+            ws.send(message);
+            output.innerText = `Dispatched -> Agent: ${agent} | Action: ${action}`;
         }
     </script>
 </body>
