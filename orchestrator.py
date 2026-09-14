@@ -4,6 +4,7 @@ import sqlite3
 import os
 import websockets
 import urllib.request
+import urllib.parse
 
 task_queue = asyncio.Queue()
 
@@ -108,7 +109,21 @@ async def handle_client(websocket):
             elif agent == "SearchAgent":
                 if action == "web_search":
                     query = payload.get("query", "Aethel intelligence")
-                    result["data"] = {"query": query, "results": [f"Simulated local result for: {query}"]}
+                    try:
+                        encoded_query = urllib.parse.quote(query)
+                        url = f"https://html.duckduckgo.com/html/?q={encoded_query}"
+                        req = urllib.request.Request(
+                            url,
+                            headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
+                        )
+                        with urllib.request.urlopen(req, timeout=15) as response:
+                            html_content = response.read().decode('utf-8')
+                            import re
+                            snippets = re.findall(r'<a class="result__snippet[^>]*>(.*?)</a>', html_content)
+                            clean_snippets = [re.sub(r'<.*?>', '', s) for s in snippets[:5]]
+                            result["data"] = {"query": query, "results": clean_snippets if clean_snippets else ["No external snippets parsed"]}
+                    except Exception as e:
+                        result["data"] = {"query": query, "results": [f"Fallback local search result for: {query}", f"Error connecting to public web: {str(e)}"]}
                 else:
                     result["data"] = {"message": "Unknown search action"}
             elif agent == "WorkerAgent":
