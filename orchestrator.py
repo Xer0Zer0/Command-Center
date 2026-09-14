@@ -19,6 +19,14 @@ def init_db():
             timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
         )
     """)
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS memories (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            content TEXT,
+            tag TEXT,
+            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
     conn.commit()
     conn.close()
 
@@ -28,7 +36,7 @@ async def worker_processor():
         task_name = task_data.get("task")
         priority = task_data.get("priority", "normal")
         print(f"Processing background job -> Task: {task_name} | Priority: {priority}")
-        await asyncio.sleep(2) # Simulate background processing
+        await asyncio.sleep(2)
         conn = sqlite3.connect("aethel.db")
         conn.execute(
             "INSERT INTO command_logs (agent, action, payload) VALUES (?, ?, ?)",
@@ -117,9 +125,21 @@ async def handle_client(websocket):
                 else:
                     result["data"] = {"message": "Unknown config action"}
             elif agent == "MemoryAgent":
-                if action == "recall_context":
-                    scope = payload.get("scope", "sovereign")
-                    result["data"] = {"context_scope": scope, "stored_items": 12, "status": "active_recall"}
+                if action == "store_memory":
+                    content = payload.get("content", "Default memory snippet")
+                    tag = payload.get("tag", "general")
+                    conn = sqlite3.connect("aethel.db")
+                    conn.execute("INSERT INTO memories (content, tag) VALUES (?, ?)", (content, tag))
+                    conn.commit()
+                    conn.close()
+                    result["data"] = {"status": "stored", "content": content, "tag": tag}
+                elif action == "recall_context":
+                    conn = sqlite3.connect("aethel.db")
+                    cursor = conn.cursor()
+                    cursor.execute("SELECT id, content, tag, timestamp FROM memories ORDER BY id DESC LIMIT 5")
+                    memories = cursor.fetchall()
+                    conn.close()
+                    result["data"] = {"context_scope": "sovereign", "memories": memories, "status": "active_recall"}
                 else:
                     result["data"] = {"message": "Unknown memory action"}
             elif agent == "AnalyticsAgent":
@@ -185,4 +205,4 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-    
+                
