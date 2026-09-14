@@ -59,6 +59,12 @@ async def handle_client(websocket):
                     result["data"] = {"query": query, "results": [f"Simulated result for: {query}"]}
                 else:
                     result["data"] = {"message": "Unknown search action"}
+            elif agent == "WorkerAgent":
+                if action == "dispatch_job":
+                    task_name = payload.get("task", "sync_index")
+                    result["data"] = {"job": task_name, "status": "queued", "message": f"Background task {task_name} initialized"}
+                else:
+                    result["data"] = {"message": "Unknown worker action"}
             else:
                 result["data"] = {"message": f"Agent {agent} executed {action}"}
                 
@@ -82,4 +88,4 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-                    
+    
