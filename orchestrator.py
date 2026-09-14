@@ -70,6 +70,11 @@ async def handle_client(websocket):
                     result["data"] = {"mode": "offline", "sovereignty": "strict", "version": "1.0.0"}
                 else:
                     result["data"] = {"message": "Unknown config action"}
+            elif agent == "MemoryAgent":
+                if action == "recall_context":
+                    result["data"] = {"context_scope": "sovereign", "stored_items": 12, "status": "active_recall"}
+                else:
+                    result["data"] = {"message": "Unknown memory action"}
             else:
                 result["data"] = {"message": f"Agent {agent} executed {action}"}
                 
