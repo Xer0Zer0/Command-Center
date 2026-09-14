@@ -3,7 +3,6 @@ import json
 import sqlite3
 import websockets
 
-# Initialize SQLite database with WAL mode for high-performance concurrent access
 def init_db():
     conn = sqlite3.connect("aethel.db")
     conn.execute("PRAGMA journal_mode=WAL;")
@@ -24,20 +23,28 @@ async def handle_client(websocket):
     try:
         async for message in websocket:
             data = json.loads(message)
-            print(f"Received message: {data}")
+            agent = data.get("agent", "System")
+            action = data.get("action")
+            payload = data.get("payload", {})
             
-            # Log command into SQLite
+            print(f"Routing task -> Agent: {agent} | Action: {action}")
+            
+            result = {"status": "success", "agent": agent, "action": action}
+            if agent == "System":
+                if action == "ping":
+                    result["data"] = {"message": "Aethel orchestrator active and healthy"}
+            else:
+                result["data"] = {"message": f"Agent {agent} executed {action}"}
+                
             conn = sqlite3.connect("aethel.db")
             conn.execute(
                 "INSERT INTO command_logs (agent, action, payload) VALUES (?, ?, ?)",
-                (data.get("agent"), data.get("action"), json.dumps(data.get("payload")))
+                (agent, action, json.dumps(payload))
             )
             conn.commit()
             conn.close()
             
-            # Send acknowledgement back to client
-            response = {"status": "success", "processed_action": data.get("action")}
-            await websocket.send(json.dumps(response))
+            await websocket.send(json.dumps(result))
     except websockets.exceptions.ConnectionClosed:
         print("Client disconnected")
 
@@ -49,4 +56,4 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-  
+    
