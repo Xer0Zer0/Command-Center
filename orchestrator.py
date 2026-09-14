@@ -1,6 +1,7 @@
 import asyncio
 import json
 import sqlite3
+import os
 import websockets
 
 def init_db():
@@ -30,9 +31,18 @@ async def handle_client(websocket):
             print(f"Routing task -> Agent: {agent} | Action: {action}")
             
             result = {"status": "success", "agent": agent, "action": action}
+            
             if agent == "System":
                 if action == "ping":
                     result["data"] = {"message": "Aethel orchestrator active and healthy"}
+                else:
+                    result["data"] = {"message": f"System executed {action}"}
+            elif agent == "FileAgent":
+                if action == "list_dir":
+                    files = os.listdir(".")
+                    result["data"] = {"files": files}
+                else:
+                    result["data"] = {"message": "Unknown file action"}
             else:
                 result["data"] = {"message": f"Agent {agent} executed {action}"}
                 
