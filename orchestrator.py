@@ -20,6 +20,18 @@ def init_db():
     conn.commit()
     conn.close()
 
+async def background_heartbeat():
+    while True:
+        await asyncio.sleep(60)
+        conn = sqlite3.connect("aethel.db")
+        conn.execute(
+            "INSERT INTO command_logs (agent, action, payload) VALUES (?, ?, ?)",
+            ("System", "heartbeat", json.dumps({"status": "healthy", "mode": "offline"}))
+        )
+        conn.commit()
+        conn.close()
+        print("Heartbeat recorded to audit log.")
+
 async def handle_client(websocket):
     print("Client connected")
     try:
@@ -145,10 +157,11 @@ async def handle_client(websocket):
 
 async def main():
     init_db()
+    asyncio.create_task(background_heartbeat())
     server = await websockets.serve(handle_client, "127.0.0.1", 8765)
     print("Aethel Orchestrator running on ws://127.0.0.1:8765")
     await server.wait_closed()
 
 if __name__ == "__main__":
     asyncio.run(main())
-    
+            
