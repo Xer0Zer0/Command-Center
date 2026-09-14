@@ -22,6 +22,10 @@
         <!-- Dynamic logs injected here -->
     </div>
 
+    <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+        <button onclick="sendAgentCommand('FileAgent', 'list_dir')" style="padding: 8px 12px; background: #21262d; color: #c9d1d9; border: 1px solid #30363d; border-radius: 6px; cursor: pointer;">List Files</button>
+    </div>
+
     <div style="display: flex; gap: 10px;">
         <input type="text" id="commandInput" placeholder="Enter command for Aethel..." style="flex: 1; padding: 10px; background: #161b22; border: 1px solid #30363d; color: #c9d1d9; border-radius: 6px;">
         <button onclick="sendCommand()" style="padding: 10px 20px; background: #238636; color: white; border: none; border-radius: 6px; cursor: pointer;">Send</button>
@@ -59,6 +63,15 @@
         ws.onerror = function(error) {
             appendMessage("System", "WebSocket error occurred");
         };
+
+        function sendAgentCommand(agentName, actionName) {
+            appendMessage("User", `Requesting ${actionName} from ${agentName}`);
+            ws.send(JSON.stringify({
+                agent: agentName,
+                action: actionName,
+                payload: {}
+            }));
+        }
 
         function sendCommand() {
             const input = document.getElementById("commandInput");
