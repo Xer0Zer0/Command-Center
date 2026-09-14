@@ -31,7 +31,7 @@
         <h3>Runtime Payload Injection</h3>
         <div style="margin-bottom: 10px;">
             <label style="font-size: 12px; color: #8b949e; display: block; margin-bottom: 5px;">Custom JSON Payload / Arguments:</label>
-            <input type="text" id="payload-input" value='{"limit": 5, "priority": "high", "scope": "full"}'>
+            <input type="text" id="payload-input" value='{"limit": 5, "priority": "high", "scope": "full", "content": "Sovereignty operational check", "tag": "core"}'>
         </div>
     </div>
 
@@ -45,6 +45,7 @@
             <button onclick="sendAgentCommandWithPayload('SearchAgent', 'web_search', {query: 'Aethel orchestrator'})">Search Web</button>
             <button onclick="sendAgentCommandWithPayload('WorkerAgent', 'dispatch_job', {task: 'heavy_sync'})">Dispatch Worker</button>
             <button onclick="sendAgentCommandWithPayload('ConfigAgent', 'get_config')">Get Config</button>
+            <button onclick="sendAgentCommandWithPayload('MemoryAgent', 'store_memory', {content: 'Core architecture deployed', tag: 'milestone'})">Store Memory</button>
             <button onclick="sendAgentCommandWithPayload('MemoryAgent', 'recall_context')">Recall Memory</button>
             <button onclick="sendAgentCommandWithPayload('AnalyticsAgent', 'get_metrics')">Get Analytics</button>
         </div>
@@ -125,6 +126,12 @@
 
         function sendAgentCommandWithPayload(agent, action, defaultPayload = {}) {
             const customPayload = getDynamicPayload(defaultPayload);
+            // Merge fallback/default specific keys if not present in custom input
+            for (const key in defaultPayload) {
+                if (!(key in customPayload)) {
+                    customPayload[key] = defaultPayload[key];
+                }
+            }
             sendAgentCommand(agent, action, customPayload);
         }
 
@@ -141,4 +148,5 @@
         }
     </script>
 </body>
-</html>
+    </html>
+    
