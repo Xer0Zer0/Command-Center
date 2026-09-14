@@ -7,44 +7,49 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background-color: #0d1117; color: #c9d1d9; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 16px; }
-        header { background: #161b22; padding: 14px; border-radius: 8px; margin-bottom: 16px; font-size: 1.1rem; font-weight: bold; border: 1px solid #30363d; }
-        .status-pill { font-size: 0.75rem; background: #238636; padding: 2px 8px; border-radius: 12px; float: right; color: #fff; }
-        .quick-actions { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
-        .chip { background: #21262d; border: 1px solid #30363d; padding: 8px 14px; border-radius: 6px; color: #c9d1d9; cursor: pointer; font-size: 0.9rem; }
-        .chip:active { background: #30363d; }
-        .chat-container { display: flex; flex-direction: column; gap: 12px; }
+        body { background-color: #0d1117; color: #c9d1d9; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 20px; }
+        header { background: #161b22; padding: 15px; border-radius: 6px; margin-bottom: 20px; font-size: 1.25rem; font-weight: bold; border: 1px solid #30363d; }
+        .status-pill { font-size: 0.75rem; background: #238636; padding: 2px 8px; border-radius: 12px; float: right; }
+        .chat-container { display: flex; flex-direction: column; gap: 10px; }
     </style>
 </head>
 <body>
     <header>
         3KIG Command Center
-        <span class="status-pill">Online</span>
+        <span class="status-pill">Active</span>
     </header>
-
-    <div class="quick-actions">
-        <button class="chip" onclick="logCommand('system:boot')">Boot System</button>
-        <button class="chip" onclick="logCommand('sync:database')">Sync DB</button>
-        <button class="chip" onclick="logCommand('diag:run')">Run Diagnostics</button>
+    <div class="chat-container">
+        <!-- Interface content elements -->
     </div>
-
+    
     <script>
-        const SUPABASE_URL = 'https://lrogupgrnffypwlzqprr.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_Uxs8_2CBonnV1pWvyY9dZg_J9SJLrUP';
-        
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
+        // Supabase logging helper example
         async function logCommand(commandText) {
-            const { data, error } = await supabase
-                .from('command_logs')
-                .insert([{ command: commandText, status: 'pending' }]);
-                
-            if (error) {
-                console.error('Error logging command:', error);
-            } else {
-                console.log('Command logged successfully:', data);
-            }
+            // Placeholder for client logging
+            console.log("Command logged successfully:", commandText);
         }
+    </script>
+    
+    <script>
+        const ws = new WebSocket("ws://127.0.0.1:8765");
+
+        ws.onopen = function() {
+            console.log("Connected to Aethel Orchestrator");
+            ws.send(JSON.stringify({
+                agent: "System",
+                action: "ping",
+                payload: { status: "client_active" }
+            }));
+        };
+
+        ws.onmessage = function(event) {
+            const data = JSON.parse(event.data);
+            console.log("State update received:", data);
+        };
+
+        ws.onerror = function(error) {
+            console.error("WebSocket error:", error);
+        };
     </script>
 </body>
 </html>
