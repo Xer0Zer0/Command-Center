@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  aethel-orchestrator:
+    build: .
+    container_name: 3kig-aethel-core
+    ports:
+      - "8765:8765"
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
+    environment:
+      - PYTHONUNBUFFERED=1
+      
