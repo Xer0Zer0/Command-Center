@@ -30,6 +30,7 @@
         <div style="display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap;">
             <button onclick="sendAgentCommand('System', 'ping')">Ping System</button>
             <button onclick="sendAgentCommand('FileAgent', 'list_dir')">List Files</button>
+            <button onclick="sendAgentCommand('FileAgent', 'export_logs')">Export Audit Logs</button>
             <button onclick="sendAgentCommand('DatabaseAgent', 'query_logs')">View Audit Logs</button>
             <button onclick="sendAgentCommand('SearchAgent', 'web_search', {query: 'Aethel orchestrator'})">Search Web</button>
             <button onclick="sendAgentCommand('WorkerAgent', 'dispatch_job', {task: 'heavy_sync'})">Dispatch Worker</button>
