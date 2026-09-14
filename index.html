@@ -14,7 +14,7 @@
         button { padding: 8px 12px; background: #21262d; color: #c9d1d9; border: 1px solid #30363d; border-radius: 6px; cursor: pointer; }
         button:hover { background: #30363d; }
         input[type="text"] { padding: 8px; background: #010409; color: #c9d1d9; border: 1px solid #30363d; border-radius: 4px; font-family: monospace; width: 100%; box-sizing: border-box; }
-        pre { background: #010409; padding: 10px; border-radius: 4px; overflow-x: auto; color: #7ee787; }
+        pre { background: #010409; padding: 10px; border-radius: 4px; overflow-x: auto; color: #7ee787; max-height: 300px; }
     </style>
 </head>
 <body>
@@ -43,7 +43,7 @@
             <button onclick="sendAgentCommandWithPayload('FileAgent', 'export_logs')">Export Audit Logs</button>
             <button onclick="sendAgentCommandWithPayload('DatabaseAgent', 'query_logs')">View Audit Logs</button>
             <button onclick="sendAgentCommandWithPayload('SearchAgent', 'web_search', {query: 'Aethel orchestrator'})">Search Web</button>
-            <button onclick="sendAgentCommandWithPayload('WorkerAgent', 'dispatch_job', {task: 'heavy_sync'})">Dispatch Worker</button>
+            <button onclick="sendAgentCommandWithPayload('WorkerAgent', 'dispatch_job', {task: 'heavy_sync', priority: 'high'})">Dispatch Worker</button>
             <button onclick="sendAgentCommandWithPayload('ConfigAgent', 'get_config')">Get Config</button>
             <button onclick="sendAgentCommandWithPayload('MemoryAgent', 'store_memory', {content: 'Core architecture deployed', tag: 'milestone'})">Store Memory</button>
             <button onclick="sendAgentCommandWithPayload('MemoryAgent', 'recall_context')">Recall Memory</button>
@@ -68,7 +68,7 @@
     </div>
 
     <div class="card">
-        <h3>Live Output Stream</h3>
+        <h3>Live Output Stream & Broadcast Feed</h3>
         <pre id="output">Initializing WebSocket connection...</pre>
     </div>
 
@@ -91,13 +91,21 @@
         ws.onopen = () => {
             connectionStartTime = Date.now();
             document.getElementById("stat-conn").innerText = "Online";
-            output.innerText = "Connected to Aethel Orchestrator.";
+            output.innerText = "Connected to Aethel Orchestrator. Listening for broadcasts...";
         };
 
         ws.onmessage = (event) => {
+            const res = JSON.parse(event.data);
+            
+            // Handle asynchronous broadcast events separately from direct response payloads
+            if (res.event) {
+                const timestamp = new Date().toLocaleTimeString();
+                output.innerText = `[BROADCAST @ ${timestamp}] ${JSON.stringify(res, null, 2)}\n\n` + output.innerText;
+                return;
+            }
+
             const latency = Date.now() - startTime;
             document.getElementById("stat-latency").innerText = latency + "ms";
-            const res = JSON.parse(event.data);
             output.innerText = JSON.stringify(res, null, 2);
         };
 
@@ -126,7 +134,6 @@
 
         function sendAgentCommandWithPayload(agent, action, defaultPayload = {}) {
             const customPayload = getDynamicPayload(defaultPayload);
-            // Merge fallback/default specific keys if not present in custom input
             for (const key in defaultPayload) {
                 if (!(key in customPayload)) {
                     customPayload[key] = defaultPayload[key];
@@ -148,5 +155,4 @@
         }
     </script>
 </body>
-    </html>
-    
+</html>
