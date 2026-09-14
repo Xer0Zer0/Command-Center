@@ -78,7 +78,7 @@ async def handle_client(websocket):
                     result["data"] = {"message": "Unknown memory action"}
             elif agent == "AnalyticsAgent":
                 if action == "get_metrics":
-                    result["data"] = {"total_agents": 8, "storage_mode": "WAL", "system_status": "optimal"}
+                    result["data"] = {"total_agents": 9, "storage_mode": "WAL", "system_status": "optimal"}
                 else:
                     result["data"] = {"message": "Unknown analytics action"}
             elif agent == "LLMAgent":
@@ -100,6 +100,18 @@ async def handle_client(websocket):
                         result["data"] = {"error": str(e), "message": "Failed to connect to local Ollama instance"}
                 else:
                     result["data"] = {"message": "Unknown LLM action"}
+            elif agent == "VectorAgent":
+                if action == "semantic_search":
+                    query_text = payload.get("query", "orchestrator state")
+                    result["data"] = {
+                        "query": query_text, 
+                        "matches": [
+                            {"id": 3, "agent": "System", "similarity": 0.94, "content": "Aethel orchestrator active and healthy"},
+                            {"id": 7, "agent": "ConfigAgent", "similarity": 0.88, "content": "strict sovereignty offline configuration loaded"}
+                        ]
+                    }
+                else:
+                    result["data"] = {"message": "Unknown vector action"}
             else:
                 result["data"] = {"message": f"Agent {agent} executed {action}"}
                 
@@ -123,4 +135,4 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-    
+                    
