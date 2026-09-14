@@ -18,10 +18,11 @@
     
     <div class="card">
         <h3>Agent Control Panel</h3>
-        <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+        <div style="display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap;">
             <button onclick="sendAgentCommand('System', 'ping')">Ping System</button>
             <button onclick="sendAgentCommand('FileAgent', 'list_dir')">List Files</button>
             <button onclick="sendAgentCommand('DatabaseAgent', 'query_logs')">View Audit Logs</button>
+            <button onclick="sendAgentCommand('SearchAgent', 'web_search', {query: 'Aethel orchestrator'})">Search Web</button>
         </div>
     </div>
 
