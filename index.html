@@ -89,7 +89,7 @@
             document.getElementById("stat-count").innerText = commandCount;
             const message = JSON.stringify({ agent, action, payload });
             ws.send(message);
-            output.innerText = `Disraped -> Agent: ${agent} | Action: ${action}`;
+            output.innerText = `Dispatched -> Agent: ${agent} | Action: ${action}`;
         }
 
         function triggerLLM() {
