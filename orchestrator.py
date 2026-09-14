@@ -29,26 +29,27 @@ async def handle_client(websocket):
             action = data.get("action")
             payload = data.get("payload", {})
             
-            print(f"Routing task -> Agent: {agent} | Action: {action}")
+            print(f"Routing task -> Agent: {agent} | Action: {action} | Payload: {payload}")
             
             result = {"status": "success", "agent": agent, "action": action}
             
             if agent == "System":
                 if action == "ping":
-                    result["data"] = {"message": "Aethel orchestrator active and healthy"}
+                    result["data"] = {"message": "Aethel orchestrator active and healthy", "echo_payload": payload}
                 else:
-                    result["data"] = {"message": f"System executed {action}"}
+                    result["data"] = {"message": f"System executed {action}", "payload": payload}
             elif agent == "FileAgent":
                 if action == "list_dir":
-                    files = os.listdir(".")
-                    result["data"] = {"files": files}
+                    target_dir = payload.get("path", ".")
+                    files = os.listdir(target_dir)
+                    result["data"] = {"path": target_dir, "files": files}
                 elif action == "export_logs":
                     conn = sqlite3.connect("aethel.db")
                     cursor = conn.cursor()
                     cursor.execute("SELECT id, agent, action, payload, timestamp FROM command_logs")
                     rows = cursor.fetchall()
                     conn.close()
-                    export_path = "aethel_export.json"
+                    export_path = payload.get("filename", "aethel_export.json")
                     with open(export_path, "w") as f:
                         json.dump(rows, f, indent=2)
                     result["data"] = {"status": "success", "file": export_path, "exported_records": len(rows)}
@@ -56,39 +57,42 @@ async def handle_client(websocket):
                     result["data"] = {"message": "Unknown file action"}
             elif agent == "DatabaseAgent":
                 if action == "query_logs":
+                    limit = payload.get("limit", 10)
                     conn = sqlite3.connect("aethel.db")
                     cursor = conn.cursor()
-                    cursor.execute("SELECT id, agent, action, timestamp FROM command_logs ORDER BY id DESC LIMIT 10")
+                    cursor.execute("SELECT id, agent, action, timestamp FROM command_logs ORDER BY id DESC LIMIT ?", (limit,))
                     logs = cursor.fetchall()
                     conn.close()
-                    result["data"] = {"logs": logs}
+                    result["data"] = {"logs": logs, "limit": limit}
                 else:
                     result["data"] = {"message": "Unknown database action"}
             elif agent == "SearchAgent":
                 if action == "web_search":
                     query = payload.get("query", "Aethel intelligence")
-                    result["data"] = {"query": query, "results": [f"Simulated result for: {query}"]}
+                    result["data"] = {"query": query, "results": [f"Simulated local result for: {query}"]}
                 else:
                     result["data"] = {"message": "Unknown search action"}
             elif agent == "WorkerAgent":
                 if action == "dispatch_job":
                     task_name = payload.get("task", "sync_index")
-                    result["data"] = {"job": task_name, "status": "queued", "message": f"Background task {task_name} initialized"}
+                    priority = payload.get("priority", "normal")
+                    result["data"] = {"job": task_name, "priority": priority, "status": "queued", "message": f"Background task {task_name} initialized with {priority} priority"}
                 else:
                     result["data"] = {"message": "Unknown worker action"}
             elif agent == "ConfigAgent":
                 if action == "get_config":
-                    result["data"] = {"mode": "offline", "sovereignty": "strict", "version": "1.0.0"}
+                    result["data"] = {"mode": "offline", "sovereignty": "strict", "version": "1.0.0", "custom_param": payload.get("key", "none")}
                 else:
                     result["data"] = {"message": "Unknown config action"}
             elif agent == "MemoryAgent":
                 if action == "recall_context":
-                    result["data"] = {"context_scope": "sovereign", "stored_items": 12, "status": "active_recall"}
+                    scope = payload.get("scope", "sovereign")
+                    result["data"] = {"context_scope": scope, "stored_items": 12, "status": "active_recall"}
                 else:
                     result["data"] = {"message": "Unknown memory action"}
             elif agent == "AnalyticsAgent":
                 if action == "get_metrics":
-                    result["data"] = {"total_agents": 9, "storage_mode": "WAL", "system_status": "optimal"}
+                    result["data"] = {"total_agents": 9, "storage_mode": "WAL", "system_status": "optimal", "metrics_scope": payload.get("scope", "full")}
                 else:
                     result["data"] = {"message": "Unknown analytics action"}
             elif agent == "LLMAgent":
@@ -113,17 +117,19 @@ async def handle_client(websocket):
             elif agent == "VectorAgent":
                 if action == "semantic_search":
                     query_text = payload.get("query", "orchestrator state")
+                    top_k = payload.get("top_k", 2)
                     result["data"] = {
                         "query": query_text, 
+                        "top_k": top_k,
                         "matches": [
                             {"id": 3, "agent": "System", "similarity": 0.94, "content": "Aethel orchestrator active and healthy"},
                             {"id": 7, "agent": "ConfigAgent", "similarity": 0.88, "content": "strict sovereignty offline configuration loaded"}
-                        ]
+                        ][:top_k]
                     }
                 else:
                     result["data"] = {"message": "Unknown vector action"}
             else:
-                result["data"] = {"message": f"Agent {agent} executed {action}"}
+                result["data"] = {"message": f"Agent {agent} executed {action}", "payload": payload}
                 
             conn = sqlite3.connect("aethel.db")
             conn.execute(
@@ -145,4 +151,4 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-                    
+    
