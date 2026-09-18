@@ -14,7 +14,33 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      
+      - name: Run Bash Validation Tests
+        run: |
+          echo "=== Starting Bash Testing Suite ==="
+          
+          # Test 1: Verify that index.html exists
+          if [ ! -f "index.html" ]; then
+            echo "::error::index.html is missing!"
+            exit 1
+          else
+            echo "✓ index.html found."
+          fi
+          
+          # Test 2: Check for empty files
+          find . -maxdepth 2 -type f -empty | while read file; do
+            echo "::warning::Found empty file: $file"
+          done
+          
+          echo "=== All Bash tests passed successfully! ==="
+
   build:
+    needs: test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
