@@ -39,7 +39,8 @@
         body {
             background-color: var(--bg-color);
             color: var(--text-color);
-            height: 100dvh; /* Uses dynamic viewport height to handle mobile browser toolbars correctly */
+            height: 100vh;
+            height: 100dvh;
             display: flex;
             flex-direction: column;
             overflow: hidden;
@@ -167,21 +168,25 @@
             cursor: pointer;
         }
 
-        /* Main Viewport Content Area */
+        /* Main Viewport Content Area with proper bottom spacing */
         main {
             flex-grow: 1;
             overflow-y: auto;
             padding: 16px;
+            padding-bottom: 150px; /* Leaves enough room so full-screen data isn't hidden under the dock */
         }
 
         /* Bottom Controls Container */
         .bottom-dock {
-            flex-shrink: 0;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
             background-color: var(--tray-bg);
             border-top: 1px solid var(--border-color);
             border-top-left-radius: 20px;
             border-top-right-radius: 20px;
-            padding: 8px 14px 12px 14px;
+            padding: 6px 12px 12px 12px;
             box-shadow: 0 -4px 16px rgba(0,0,0,0.08);
             z-index: 90;
         }
@@ -191,15 +196,15 @@
             height: 4px;
             background-color: #ccc;
             border-radius: 2px;
-            margin: 0 auto 6px auto;
+            margin: 0 auto 4px auto;
         }
 
         .section-label {
-            font-size: 8px;
+            font-size: 7px;
             font-weight: 600;
             letter-spacing: 1px;
             color: #888;
-            margin-bottom: 4px;
+            margin-bottom: 3px;
             text-transform: uppercase;
         }
 
@@ -208,14 +213,14 @@
             display: grid;
             grid-template-columns: repeat(5, 1fr);
             gap: 4px;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
         }
 
         .op-card {
             background-color: var(--card-bg);
             border: 1px solid var(--border-color);
-            border-radius: 10px;
-            padding: 6px 2px;
+            border-radius: 8px;
+            padding: 5px 2px;
             text-align: center;
             cursor: pointer;
             display: flex;
@@ -226,22 +231,22 @@
         }
 
         .op-card span:last-child {
-            font-size: 9px;
+            font-size: 8px;
             font-weight: 500;
             color: var(--text-color);
         }
 
-        /* Settings Sub-Panel */
+        /* Settings Sub-Panel (Hidden by default) */
         .settings-panel {
             display: none;
             align-items: center;
             justify-content: space-between;
             background-color: var(--card-bg);
             border: 1px solid var(--border-color);
-            border-radius: 10px;
-            padding: 6px 10px;
-            margin-bottom: 6px;
-            font-size: 11px;
+            border-radius: 8px;
+            padding: 4px 8px;
+            margin-bottom: 4px;
+            font-size: 10px;
         }
 
         .settings-panel.active {
@@ -258,8 +263,8 @@
         .switch {
             position: relative;
             display: inline-block;
-            width: 34px;
-            height: 18px;
+            width: 30px;
+            height: 16px;
         }
 
         .switch input {
@@ -274,7 +279,7 @@
             top: 0; left: 0; right: 0; bottom: 0;
             background-color: #ccc;
             transition: 0.3s;
-            border-radius: 18px;
+            border-radius: 16px;
         }
 
         .slider:before {
@@ -282,8 +287,8 @@
             content: "";
             height: 12px;
             width: 12px;
-            left: 3px;
-            bottom: 3px;
+            left: 2px;
+            bottom: 2px;
             background-color: white;
             transition: 0.3s;
             border-radius: 50%;
@@ -298,7 +303,7 @@
         }
 
         input:checked + .slider:before {
-            transform: translateX(16px);
+            transform: translateX(14px);
             background-color: #000;
         }
 
@@ -308,9 +313,9 @@
             align-items: center;
             background-color: var(--input-bg);
             border: 1px solid var(--border-color);
-            border-radius: 26px;
-            padding: 6px 12px;
-            gap: 8px;
+            border-radius: 24px;
+            padding: 5px 10px;
+            gap: 6px;
         }
 
         .prompt-close {
@@ -318,7 +323,7 @@
             background: none;
             border: none;
             color: #ff5252;
-            font-size: 15px;
+            font-size: 14px;
             cursor: pointer;
             align-items: center;
             padding: 0;
@@ -334,7 +339,7 @@
             border: none;
             outline: none;
             color: var(--text-color);
-            font-size: 12px;
+            font-size: 11px;
         }
 
         .prompt-input::placeholder {
@@ -354,7 +359,7 @@
             display: flex;
             align-items: center;
             padding: 2px;
-            font-size: 13px;
+            font-size: 12px;
         }
 
         /* Multi-color audio waveform */
@@ -362,7 +367,7 @@
             display: flex;
             align-items: center;
             gap: 2px;
-            height: 12px;
+            height: 10px;
         }
 
         .waveform span {
@@ -372,10 +377,10 @@
             animation: pulse 1.2s infinite ease-in-out;
         }
 
-        .waveform span:nth-child(1) { background-color: #3b82f6; height: 5px; animation-delay: 0.1s; }
-        .waveform span:nth-child(2) { background-color: #10b981; height: 10px; animation-delay: 0.3s; }
-        .waveform span:nth-child(3) { background-color: #f59e0b; height: 7px; animation-delay: 0.2s; }
-        .waveform span:nth-child(4) { background-color: #ec4899; height: 12px; animation-delay: 0.4s; }
+        .waveform span:nth-child(1) { background-color: #3b82f6; height: 4px; animation-delay: 0.1s; }
+        .waveform span:nth-child(2) { background-color: #10b981; height: 9px; animation-delay: 0.3s; }
+        .waveform span:nth-child(3) { background-color: #f59e0b; height: 6px; animation-delay: 0.2s; }
+        .waveform span:nth-child(4) { background-color: #ec4899; height: 10px; animation-delay: 0.4s; }
 
         @keyframes pulse {
             0%, 100% { transform: scaleY(0.5); }
@@ -411,7 +416,7 @@
 
     <!-- Main Viewport Content -->
     <main>
-        <!-- Dynamic content area -->
+        <!-- Place your full screen scrollable content here -->
     </main>
 
     <!-- Bottom Operations & Prompt Dock -->
@@ -518,4 +523,5 @@
         }
     </script>
 </body>
-</html>
+    </html>
+    
