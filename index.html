@@ -181,7 +181,7 @@
         main {
             flex-grow: 1;
             margin-top: 53px;
-            margin-bottom: 180px;
+            margin-bottom: 210px;
             padding: 16px;
             overflow-y: auto;
         }
@@ -196,7 +196,7 @@
             border-top: 1px solid var(--border-color);
             border-top-left-radius: 24px;
             border-top-right-radius: 24px;
-            padding: 12px 16px 24px 16px;
+            padding: 12px 16px 20px 16px;
             box-shadow: 0 -4px 16px rgba(0,0,0,0.05);
             z-index: 90;
         }
@@ -206,29 +206,37 @@
             height: 4px;
             background-color: #ccc;
             border-radius: 2px;
-            margin: 0 auto 12px auto;
+            margin: 0 auto 10px auto;
+        }
+
+        .operations-label {
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.8px;
+            color: #888;
+            margin-bottom: 8px;
         }
 
         /* Operations Grid (5 Cards) */
         .operations-grid {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
-            gap: 8px;
-            margin-bottom: 12px;
+            gap: 6px;
+            margin-bottom: 10px;
         }
 
         .op-card {
             background-color: var(--card-bg);
             border: 1px solid var(--border-color);
-            border-radius: 14px;
-            padding: 10px 4px;
+            border-radius: 12px;
+            padding: 8px 2px;
             text-align: center;
             cursor: pointer;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 6px;
+            gap: 4px;
             transition: transform 0.1s;
         }
 
@@ -236,8 +244,8 @@
             transform: scale(0.96);
         }
 
-        .op-card span {
-            font-size: 11px;
+        .op-card span:last-child {
+            font-size: 10px;
             font-weight: 500;
             color: var(--text-color);
         }
@@ -249,17 +257,17 @@
             justify-content: space-between;
             background-color: var(--card-bg);
             border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 10px 14px;
-            margin-bottom: 12px;
-            font-size: 13px;
+            border-radius: 10px;
+            padding: 8px 12px;
+            margin-bottom: 10px;
+            font-size: 12px;
         }
 
         .switch {
             position: relative;
             display: inline-block;
-            width: 40px;
-            height: 22px;
+            width: 36px;
+            height: 20px;
         }
 
         .switch input {
@@ -274,14 +282,14 @@
             top: 0; left: 0; right: 0; bottom: 0;
             background-color: #ccc;
             transition: 0.3s;
-            border-radius: 22px;
+            border-radius: 20px;
         }
 
         .slider:before {
             position: absolute;
             content: "";
-            height: 16px;
-            width: 16px;
+            height: 14px;
+            width: 14px;
             left: 3px;
             bottom: 3px;
             background-color: white;
@@ -298,7 +306,7 @@
         }
 
         input:checked + .slider:before {
-            transform: translateX(18px);
+            transform: translateX(16px);
         }
 
         /* Prompt Bar */
@@ -326,7 +334,7 @@
             border: none;
             outline: none;
             color: var(--text-color);
-            font-size: 14px;
+            font-size: 13px;
         }
 
         .prompt-input::placeholder {
@@ -336,7 +344,7 @@
         .prompt-actions {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
         }
 
         .icon-btn {
@@ -346,6 +354,7 @@
             display: flex;
             align-items: center;
             padding: 4px;
+            font-size: 14px;
         }
 
         .waveform {
@@ -382,7 +391,7 @@
             <span></span>
             <span></span>
         </button>
-        <div class="header-title" id="headerTitle">Aethel</div>
+        <div class="header-title" id="headerTitle"></div>
     </header>
 
     <!-- Sliding Navigation Drawer -->
@@ -409,8 +418,9 @@
     <!-- Bottom Operations & Prompt Dock -->
     <div class="bottom-dock">
         <div class="tray-handle"></div>
+        <div class="operations-label">OPERATIONS</div>
         
-        <!-- Operations Grid (5 Cards) -->
+        <!-- Operations Grid (5 Cards: Agents, Camera, Media, Storage, Setting) -->
         <div class="operations-grid">
             <div class="op-card" onclick="selectAgent('Alpha')">
                 <span>🤖</span>
@@ -482,7 +492,7 @@
             }
         }
 
-        // Toggle Settings Sub-Panel visibility if needed
+        // Toggle Settings Sub-Panel visibility
         function toggleSettingsPanel() {
             const panel = document.getElementById('settingsPanel');
             panel.style.display = panel.style.display === 'none' ? 'flex' : 'none';
@@ -507,5 +517,4 @@
         }
     </script>
 </body>
-    </html>
-    
+</html>
