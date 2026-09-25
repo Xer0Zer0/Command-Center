@@ -1,0 +1,236 @@
+
+async function executivePillar(fastify, options) {
+  // In-memory queue for pending approvals
+  const pendingApprovals = new Map();
+
+  fastify.post('/api/command-core/execute', async (request, reply) => {
+    const { action, payload } = request.body || {};
+    const actionId = `act_${Date.now()}`;
+
+    // Store action in pending queue
+    pendingApprovals.set(actionId, { action, payload, status: 'PENDING', timestamp: new Date().toISOString() });
+
+    return { success: true, message: 'Action intercepted by HITL queue', actionId, status: 'PENDING' };
+  });
+
+  fastify.get('/api/command-core/approvals', async (request, reply) => {
+    return { success: true, pending: Array.from(pendingApprovals.entries()) };
+  });
+
+  fastify.post('/api/command-core/approve', async (request, reply) => {
+    const { actionId, approved } = request.body || {};
+    if (!pendingApprovals.has(actionId)) {
+      return reply.status(404).send({ success: false, error: 'Action ID not found' });
+    }
+
+    const item = pendingApprovals.get(actionId);
+    item.status = approved ? 'APPROVED' : 'REJECTED';
+
+    return { success: true, actionId, status: item.status };
+  });
+}
+
+module.exports = executivePillar;
+const fs = require('fs/promises');
+const dbPath = './db.json';
+
+async function executivePillar(fastify, options) {
+  fastify.get('/api/command-core/executive/pending', async (request, reply) => {
+    const fileData = JSON.parse(await fs.readFile(dbPath, 'utf8'));
+    const pending = fileData.state.pending_actions || [];
+    return { success: true, pending };
+  });
+
+  fastify.post('/api/command-core/executive/propose', async (request, reply) => {
+    const { action, payload } = request.body || {};
+    const fileData = JSON.parse(await fs.readFile(dbPath, 'utf8'));
+
+    if (!fileData.state.pending_actions) fileData.state.pending_actions = [];
+    const proposalId = `action_${Date.now()}`;
+
+    fileData.state.pending_actions.push({ id: proposalId, action, payload, status: 'PENDING' });
+
+    const tempPath = `${dbPath}.tmp`;
+    await fs.writeFile(tempPath, JSON.stringify(fileData, null, 2));
+    await fs.rename(tempPath, dbPath);
+
+    return { success: true, proposalId, status: 'Awaiting HITL Approval' };
+  });
+
+  fastify.post('/api/command-core/executive/authorize', async (request, reply) => {
+    const { proposalId, decision } = request.body || {}; // decision: 'APPROVE' or 'REJECT'
+    const fileData = JSON.parse(await fs.readFile(dbPath, 'utf8'));
+
+    if (!fileData.state.pending_actions) return { success: false, error: 'No pending queue' };
+
+    const index = fileData.state.pending_actions.findIndex(p => p.id === proposalId);
+    if (index === -1) return { success: false, error: 'Proposal not found' };
+
+    const [actionObj] = fileData.state.pending_actions.splice(index, 1);
+    actionObj.status = decision;
+
+    if (!fileData.state.history) fileData.state.history = [];
+    fileData.state.history.push({ ...actionObj, resolvedAt: new Date().toISOString() });
+
+    const tempPath = `${dbPath}.tmp`;
+    await fs.writeFile(tempPath, JSON.stringify(fileData, null, 2));
+    await fs.rename(tempPath, dbPath);
+
+    return { success: true, proposalId, decision };
+  });
+}
+
+module.exports = executivePillar;
+const fs = require('fs/promises');
+const dbPath = './db.json';
+
+async function executivePillar(fastify, options) {
+  fastify.get('/api/command-core/executive/pending', async (request, reply) => {
+    const fileData = JSON.parse(await fs.readFile(dbPath, 'utf8'));
+    const pending = fileData.state.pending_actions || [];
+    return { success: true, pending };
+  });
+
+  fastify.post('/api/command-core/executive/propose', async (request, reply) => {
+    const { action, payload } = request.body || {};
+    const fileData = JSON.parse(await fs.readFile(dbPath, 'utf8'));
+
+    if (!fileData.state.pending_actions) fileData.state.pending_actions = [];
+    const proposalId = `action_${Date.now()}`;
+
+    fileData.state.pending_actions.push({ id: proposalId, action, payload, status: 'PENDING' });
+
+    const tempPath = `${dbPath}.tmp`;
+    await fs.writeFile(tempPath, JSON.stringify(fileData, null, 2));
+    await fs.rename(tempPath, dbPath);
+
+    return { success: true, proposalId, status: 'Awaiting HITL Approval' };
+  });
+
+  fastify.post('/api/command-core/executive/authorize', async (request, reply) => {
+    const { proposalId, decision } = request.body || {}; // decision: 'APPROVE' or 'REJECT'
+    const fileData = JSON.parse(await fs.readFile(dbPath, 'utf8'));
+
+    if (!fileData.state.pending_actions) return { success: false, error: 'No pending queue' };
+
+    const index = fileData.state.pending_actions.findIndex(p => p.id === proposalId);
+    if (index === -1) return { success: false, error: 'Proposal not found' };
+
+    const [actionObj] = fileData.state.pending_actions.splice(index, 1);
+    actionObj.status = decision;
+
+    if (!fileData.state.history) fileData.state.history = [];
+    fileData.state.history.push({ ...actionObj, resolvedAt: new Date().toISOString() });
+
+    const tempPath = `${dbPath}.tmp`;
+    await fs.writeFile(tempPath, JSON.stringify(fileData, null, 2));
+    await fs.rename(tempPath, dbPath);
+
+    return { success: true, proposalId, decision };
+  });
+}
+
+module.exports = executivePillar;
+const fs = require('fs/promises');
+const dbPath = './db.json';
+
+async function executivePillar(fastify, options) {
+  fastify.get('/api/command-core/executive/pending', async (request, reply) => {
+    const fileData = JSON.parse(await fs.readFile(dbPath, 'utf8'));
+    const pending = fileData.state.pending_actions || [];
+    return { success: true, pending };
+  });
+
+  fastify.post('/api/command-core/executive/propose', async (request, reply) => {
+    const { action, payload } = request.body || {};
+    const fileData = JSON.parse(await fs.readFile(dbPath, 'utf8'));
+
+    if (!fileData.state.pending_actions) fileData.state.pending_actions = [];
+    const proposalId = `action_${Date.now()}`;
+
+    fileData.state.pending_actions.push({ id: proposalId, action, payload, status: 'PENDING' });
+
+    const tempPath = `${dbPath}.tmp`;
+    await fs.writeFile(tempPath, JSON.stringify(fileData, null, 2));
+    await fs.rename(tempPath, dbPath);
+
+    return { success: true, proposalId, status: 'Awaiting HITL Approval' };
+  });
+
+  fastify.post('/api/command-core/executive/authorize', async (request, reply) => {
+    const { proposalId, decision } = request.body || {}; // decision: 'APPROVE' or 'REJECT'
+    const fileData = JSON.parse(await fs.readFile(dbPath, 'utf8'));
+
+    if (!fileData.state.pending_actions) return { success: false, error: 'No pending queue' };
+
+    const index = fileData.state.pending_actions.findIndex(p => p.id === proposalId);
+    if (index === -1) return { success: false, error: 'Proposal not found' };
+
+    const [actionObj] = fileData.state.pending_actions.splice(index, 1);
+    actionObj.status = decision;
+
+    if (!fileData.state.history) fileData.state.history = [];
+    fileData.state.history.push({ ...actionObj, resolvedAt: new Date().toISOString() });
+
+    const tempPath = `${dbPath}.tmp`;
+    await fs.writeFile(tempPath, JSON.stringify(fileData, null, 2));
+    await fs.rename(tempPath, dbPath);
+
+    return { success: true, proposalId, decision };
+  });
+}
+
+module.exports = executivePillar;
+cat << 'EOF' > pillars/executive.js
+const fs = require('fs/promises');
+const dbPath = './db.json';
+
+async function executivePillar(fastify, options) {
+  fastify.get('/api/command-core/executive/pending', async (request, reply) => {
+    const fileData = JSON.parse(await fs.readFile(dbPath, 'utf8'));
+    const pending = fileData.state.pending_actions || [];
+    return { success: true, pending };
+  });
+
+  fastify.post('/api/command-core/executive/propose', async (request, reply) => {
+    const { action, payload } = request.body || {};
+    const fileData = JSON.parse(await fs.readFile(dbPath, 'utf8'));
+
+    if (!fileData.state.pending_actions) fileData.state.pending_actions = [];
+    const proposalId = `action_${Date.now()}`;
+
+    fileData.state.pending_actions.push({ id: proposalId, action, payload, status: 'PENDING' });
+
+    const tempPath = `${dbPath}.tmp`;
+    await fs.writeFile(tempPath, JSON.stringify(fileData, null, 2));
+    await fs.rename(tempPath, dbPath);
+
+    return { success: true, proposalId, status: 'Awaiting HITL Approval' };
+  });
+
+  fastify.post('/api/command-core/executive/authorize', async (request, reply) => {
+    const { proposalId, decision } = request.body || {};
+    const fileData = JSON.parse(await fs.readFile(dbPath, 'utf8'));
+
+    if (!fileData.state.pending_actions) return { success: false, error: 'No pending queue' };
+
+    const index = fileData.state.pending_actions.findIndex(p => p.id === proposalId);
+    if (index === -1) return { success: false, error: 'Proposal not found' };
+
+    const [actionObj] = fileData.state.pending_actions.splice(index, 1);
+    actionObj.status = decision;
+
+    if (!fileData.state.history) fileData.state.history = [];
+    fileData.state.history.push({ ...actionObj, resolvedAt: new Date().toISOString() });
+
+    const tempPath = `${dbPath}.tmp`;
+    await fs.writeFile(tempPath, JSON.stringify(fileData, null, 2));
+    await fs.rename(tempPath, dbPath);
+
+    return { success: true, proposalId, decision };
+  });
+}
+
+module.exports = executivePillar;
+EOF
+

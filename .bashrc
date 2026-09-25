@@ -1,0 +1,9 @@
+pm2 resurrect
+pm2 resurrect
+pm2 resurrect
+export JAVA_HOME=/data/data/com.termux/files/usr/opt/openjdk
+export PATH=$JAVA_HOME/bin:$PATH
+export JAVA_HOME=/data/data/com.termux/files/usr/opt/openjdk
+export PATH=$JAVA_HOME/bin:$PATH
+export JAVA_HOME=$PREFIX/lib/jvm/java-21-openjdk
+export PATH=$JAVA_HOME/bin:$PATH

@@ -1,0 +1,33 @@
+{
+  "state": {
+    "system_status": "active",
+    "pending_actions": [
+      {
+        "id": "action_1789117059462",
+        "action": "DEPLOY_MODULE",
+        "payload": {
+          "name": "commerce"
+        },
+        "status": "PENDING"
+      }
+    ],
+    "history": [
+      {
+        "id": "action_1789116339098",
+        "action": "DEPLOY_MODULE",
+        "payload": {
+          "name": "commerce"
+        },
+        "status": "APPROVE",
+        "resolvedAt": "2026-09-11T09:00:04.859Z"
+      }
+    ]
+  },
+  "logs": [
+    {
+      "timestamp": "2026-09-11T07:41:41.604Z",
+      "action": "SET",
+      "key": "system_status"
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "name": "home",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Xer0Zero0/Command-Center.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Xer0Zero0/Command-Center/issues"
+  },
+  "homepage": "https://github.com/Xer0Zero0/Command-Center#readme",
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}

@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Aethel Workspace</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+        html, body {
+            background-color: #000000;
+            color: #ffffff;
+            width: 100%;
+            height: 100vh;
+            height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            overflow: hidden;
+        }
+        .app-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            width: 100%;
+            flex-shrink: 0;
+        }
+        .header-left, .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .menu-btn {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 20px;
+            height: 14px;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+        .menu-btn span {
+            display: block;
+            height: 2px;
+            width: 100%;
+            background-color: #ffffff;
+            border-radius: 2px;
+        }
+        .brand-dropdown {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 15px;
+            font-weight: 500;
+        }
+        .dropdown-arrow {
+            stroke: #ffffff;
+            opacity: 0.8;
+        }
+        .add-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: #ffffff;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .user-avatar {
+            background-color: #c2185b;
+            color: #ffffff;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .main-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 16px;
+            background: radial-gradient(circle at center, rgba(30, 40, 90, 0.25) 0%, rgba(0, 0, 0, 1) 75%);
+        }
+        .hero-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+        }
+        .sparkle-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #9c27b0, #ff4081);
+            clip-path: polygon(50% 0%, 65% 35%, 100% 50%, 65% 65%, 50% 100%, 35% 65%, 0% 50%, 35% 35%);
+        }
+        .greeting-text {
+            font-size: 24px;
+            font-weight: 400;
+            color: #ffffff;
+        }
+        .input-footer {
+            padding: 12px 16px;
+            /* Explicitly lifts the chat bar well above the bottom screen boundary */
+            margin-bottom: 48px; 
+            width: 100%;
+            flex-shrink: 0;
+        }
+        .input-bar {
+            display: flex;
+            align-items: center;
+            background-color: #121215;
+            border-radius: 28px;
+            padding: 6px 12px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .input-action-btn {
+            background: none;
+            border: none;
+            color: #9aa0a6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .plus-btn {
+            font-size: 18px;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+        }
+        .text-input {
+            flex: 1;
+            background: none;
+            border: none;
+            color: #ffffff;
+            font-size: 15px;
+            padding: 0 10px;
+            outline: none;
+            width: 100%;
+        }
+        .text-input::placeholder {
+            color: #70757a;
+        }
+        .input-right-actions {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .mic-btn {
+            width: 30px;
+            height: 30px;
+        }
+        .send-btn {
+            width: 34px;
+            height: 34px;
+            background-color: #1a237e;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body>
+    <header class="app-header">
+        <div class="header-left">
+            <button class="icon-btn menu-btn" aria-label="Menu">
+                <span></span><span></span><span></span>
+            </button>
+            <div class="brand-dropdown">
+                <span class="brand-name">Aethel</span>
+                <svg class="dropdown-arrow" width="10" height="6" viewBox="0 0 10 6">
+                    <path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none"/>
+                </svg>
+            </div>
+        </div>
+        <div class="header-right">
+            <button class="icon-btn add-btn" aria-label="Add">+</button>
+            <div class="user-avatar">69</div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="hero-container">
+            <div class="sparkle-icon"></div>
+            <h1 class="greeting-text">What&apos;s next, 69?</h1>
+        </div>
+    </main>
+
+    <footer class="input-footer">
+        <div class="input-bar">
+            <button class="input-action-btn plus-btn">+</button>
+            <input type="text" class="text-input" placeholder="Message Aethel..." value="you there">
+            <div class="input-right-actions">
+                <button class="input-action-btn mic-btn" aria-label="Voice input">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                        <path d="M19 10v1a7 7 0 0 1-14 0v-1"></path>
+                        <line x1="12" y1="19" x2="12" y2="23"></line>
+                        <line x1="8" y1="23" x2="16" y2="23"></line>
+                    </svg>
+                </button>
+                <button class="input-action-btn send-btn" aria-label="Send"></button>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Aethel UI</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+        body {
+            background-color: #05050a;
+            color: #ffffff;
+            height: 100vh;
+            height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            overflow: hidden;
+            position: relative;
+            background-image: radial-gradient(circle at 50% 80%, #0d1224 0%, #05050a 70%);
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            z-index: 10;
+        }
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .title-dropdown {
+            font-size: 18px;
+            font-weight: 600;
+            color: #f8fafc;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            letter-spacing: 0.5px;
+        }
+        .title-dropdown::after {
+            content: "⌄";
+            font-size: 14px;
+            color: #94a3b8;
+        }
+        .workspace {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 8px;
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        /* Container wrapping popup menu and bottom bar */
+        .bottom-container {
+            padding: 0 12px;
+            padding-bottom: calc(12px + env(safe-area-inset-bottom, 12px));
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 20;
+        }
+
+        /* Popup Action Sheet / Drawer */
+        .popup-menu {
+            background-color: rgba(22, 24, 34, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 0 16px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.35s cubic-bezier(0.16, 1, 0.3, 1), padding 0.3s ease, opacity 0.2s ease;
+            opacity: 0;
+            border: 1px solid rgba(255, 255, 255, 0);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+        .bottom-container.expanded .popup-menu {
+            max-height: 420px;
+            padding: 16px;
+            opacity: 1;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            overflow-y: auto;
+        }
+
+        /* Quick Action Icons Horizontal Row */
+        .action-icons-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        .action-icon-card {
+            background-color: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 16px;
+            padding: 12px 4px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .action-icon-card:hover {
+            background-color: rgba(255, 255, 255, 0.08);
+        }
+        .action-icon-card svg {
+            width: 20px;
+            height: 20px;
+            fill: #f1f5f9;
+        }
+        .action-icon-card span {
+            font-size: 11px;
+            color: #cbd5e1;
+        }
+
+        /* Vertical Category List */
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            padding-top: 10px;
+        }
+        .option-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .option-item:hover {
+            background-color: rgba(255, 255, 255, 0.04);
+        }
+        .option-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            overflow: hidden;
+            object-fit: cover;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .option-text h4 {
+            font-size: 14px;
+            font-weight: 500;
+            color: #f8fafc;
+            letter-spacing: 0.3px;
+        }
+
+        /* Bottom Bar */
+        .bottom-bar {
+            display: flex;
+            align-items: center;
+            background-color: #161822;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 36px;
+            padding: 8px 12px 8px 16px;
+            gap: 12px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6);
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .bottom-bar.active-voice {
+            background-color: #172554;
+            border-color: #3b82f6;
+        }
+
+        .plus-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2px;
+        }
+        .plus-btn svg {
+            width: 20px;
+            height: 20px;
+            fill: #94a3b8;
+            transition: transform 0.3s ease, fill 0.2s;
+        }
+        .plus-btn:hover svg {
+            fill: #ffffff;
+        }
+        .bottom-container.expanded .plus-btn svg {
+            transform: rotate(45deg);
+            fill: #ffffff;
+        }
+        .prompt-text {
+            flex: 1;
+            font-size: 15px;
+            color: #94a3b8;
+            user-select: none;
+        }
+        .right-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .mic-icon {
+            background: none;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4px;
+        }
+        .mic-icon svg {
+            width: 22px;
+            height: 22px;
+            fill: #cbd5e1;
+        }
+        /* Bottom Right Topic Representator Avatar Circle */
+        .agent-avatar-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid rgba(59, 130, 246, 0.4);
+            overflow: hidden;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #1e3a8a;
+            box-shadow: 0 4px 12px rgba(29, 78, 216, 0.4);
+            transition: transform 0.2s;
+            padding: 0;
+        }
+        .agent-avatar-btn:hover {
+            transform: scale(1.05);
+        }
+        .agent-avatar-btn img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <div class="header-left">
+            <div class="title-dropdown" id="agentTitle">Aethel</div>
+        </div>
+    </header>
+
+    <!-- Workspace Area -->
+    <div class="workspace"></div>
+
+    <!-- Bottom Container (Popup Menu + Bottom Bar) -->
+    <div class="bottom-container" id="bottomContainer">
+        
+        <!-- Popup Menu Sheet -->
+        <div class="popup-menu">
+            <!-- Tools Across (Horizontal) -->
+            <div class="action-icons-grid">
+                <div class="action-icon-card">
+                    <svg viewBox="0 0 24 24"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
+                    <span>Photos</span>
+                </div>
+                <div class="action-icon-card">
+                    <svg viewBox="0 0 24 24"><path d="M12 15c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3zm9-9h-3.17L15 3H9L7.17 6H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-9 13c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/></svg>
+                    <span>Camera</span>
+                </div>
+                <div class="action-icon-card">
+                    <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+                    <span>Files</span>
+                </div>
+                <div class="action-icon-card">
+                    <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+                    <span>Note</span>
+                </div>
+            </div>
+
+            <!-- Topics List with Representator Photos -->
+            <div class="options-list" id="categoryList">
+                <div class="option-item" data-agent="Aethel" data-img="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150">
+                    <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150" class="option-avatar" alt="Aethel">
+                    <div class="option-text"><h4>Aethel</h4></div>
+                </div>
+                <div class="option-item" data-agent="Corporate" data-img="https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=150">
+                    <img src="https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=150" class="option-avatar" alt="Corporate">
+                    <div class="option-text"><h4>Corporate</h4></div>
+                </div>
+                <div class="option-item" data-agent="Commercial" data-img="https://images.unsplash.com/photo-1444858291040-58f756a3bdd6?w=150">
+                    <img src="https://images.unsplash.com/photo-1444858291040-58f756a3bdd6?w=150" class="option-avatar" alt="Commercial">
+                    <div class="option-text"><h4>Commercial</h4></div>
+                </div>
+                <div class="option-item" data-agent="Community" data-img="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=150">
+                    <img src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=150" class="option-avatar" alt="Community">
+                    <div class="option-text"><h4>Community</h4></div>
+                </div>
+                <div class="option-item" data-agent="Management" data-img="https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150">
+                    <img src="https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150" class="option-avatar" alt="Management">
+                    <div class="option-text"><h4>Management</h4></div>
+                </div>
+                <div class="option-item" data-agent="Expansion" data-img="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=150">
+                    <img src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=150" class="option-avatar" alt="Expansion">
+                    <div class="option-text"><h4>Expansion</h4></div>
+                </div>
+                <div class="option-item" data-agent="System" data-img="https://images.unsplash.com/photo-1518770660439-4636190af475?w=150">
+                    <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?w=150" class="option-avatar" alt="System">
+                    <div class="option-text"><h4>System</h4></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Bar -->
+        <div class="bottom-bar" id="bottomBar">
+            <button class="plus-btn" id="plusToggle">
+                <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+            </button>
+            <form id="chatForm" style="display:flex; width:100%; align-items:center; margin:0; gap: 10px;">
+        <select id="hqSelector" style="background: rgba(255,255,255,0.1); border: none; color: white; border-radius: 8px; padding: 6px; font-size: 0.9em; outline: none; cursor: pointer;">
+            <option value="management" style="color: black;">Management</option>
+            <option value="business" style="color: black;">Business</option>
+            <option value="commercial" style="color: black;">Commercial</option>
+            <option value="community" style="color: black;">Community</option>
+            <option value="expansion" style="color: black;">Expansion</option>
+            <option value="system" style="color: black;">System</option>
+        </select>
+    <input type="text" class="prompt-text" id="promptBarText" placeholder="Ask Aethel..." autocomplete="off" autocorrect="off" autocapitalize="off" enterkeyhint="send" style="background:transparent; border:none; color:inherit; outline:none; width:100%; font-size:inherit; font-family:inherit;" />
+</form>
+            <div class="right-controls">
+                <button class="mic-icon">
+                    <svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zM17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
+                </button>
+                <button class="agent-avatar-btn" id="bottomAgentBtn">
+                    <img id="bottomAgentImg" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150" alt="Topic Avatar">
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const container = document.getElementById('bottomContainer');
+        const plusBtn = document.getElementById('plusToggle');
+        const bottomBar = document.getElementById('bottomBar');
+        const agentTitle = document.getElementById('agentTitle');
+        const promptBarText = document.getElementById('promptBarText');
+        const bottomAgentImg = document.getElementById('bottomAgentImg');
+        const bottomAgentBtn = document.getElementById('bottomAgentBtn');
+        const categoryItems = document.querySelectorAll('.option-item');
+
+        plusBtn.addEventListener('click', () => {
+            container.classList.toggle('expanded');
+        });
+
+        bottomAgentBtn.addEventListener('click', () => {
+            bottomBar.classList.toggle('active-voice');
+        });
+
+        categoryItems.forEach(item => {
+            item.addEventListener('click', () => {
+                const agentName = item.getAttribute('data-agent');
+                const agentImgUrl = item.getAttribute('data-img');
+                
+                agentTitle.textContent = agentName;
+                promptBarText.textContent = agentName === 'Aethel' ? 'Ask Aethel' : `Ask ${agentName}`;
+                bottomAgentImg.src = agentImgUrl;
+                
+                container.classList.remove('expanded');
+            });
+        });
+    
+    // Aethel Backend Integration Listener
+    const inputBar = document.querySelector(".prompt-input") || document.querySelector("input");
+    if (inputBar) {
+        inputBar.addEventListener("keydown", async (e) => {
+            if (e.key === "Enter" && inputBar.value.trim() !== "") {
+                const message = inputBar.value;
+                inputBar.value = "";
+                
+                try {
+                    const res = await fetch("/api/chat", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ message: message, hq: "management" })
+                    });
+                    const data = await res.json();
+                    console.log("[AETHEL RESPONSE]:", data.reply);
+                    alert(data.reply); // Or append to UI chat window
+                } catch (err) {
+                    console.error("Transmission error:", err);
+                }
+            }
+        });
+    }
+
+    <script>
+    const chatForm = document.getElementById('chatForm');
+    const inputBar = document.getElementById('promptBarText');
+    
+    if (chatForm && inputBar) {
+        chatForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const message = inputBar.value.trim();
+            inputBar.value = '';
+            try {
+                const res = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: message, hq: document.getElementById('hqSelector').value })
+                });
+                const data = await res.json();
+                alert(data.reply);
+            } catch (err) {
+                console.error('Error:', err);
+            }
+        });
+    }
+    </script>
+
+
+    <script>
+    const micIcon = document.querySelector('.mic-icon');
+    const inputBar = document.getElementById('promptBarText');
+
+    if (micIcon && inputBar && ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const recognition = new SpeechRecognition();
+        recognition.continuous = false;
+        recognition.interimResults = false;
+        recognition.lang = 'en-US';
+
+        micIcon.style.cursor = 'pointer';
+        micIcon.addEventListener('click', () => {
+            try {
+                recognition.start();
+                inputBar.placeholder = 'Listening...';
+            } catch (e) {
+                console.error('Speech error:', e);
+            }
+        });
+
+        recognition.onresult = (event) => {
+            const transcript = event.results[0][0].transcript;
+            inputBar.value = transcript;
+            inputBar.placeholder = 'Ask Aethel...';
+        };
+
+        recognition.onerror = () => {
+            inputBar.placeholder = 'Ask Aethel...';
+        };
+
+        recognition.onend = () => {
+            inputBar.placeholder = 'Ask Aethel...';
+        };
+    }
+    </script>
+
+
+<div id="plusMenu" style="display: none; position: absolute; bottom: 70px; left: 0; background: #222; border: 1px solid #444; border-radius: 16px; padding: 12px; width: 250px; box-shadow: 0 8px 24px rgba(0,0,0,0.6); z-index: 1001; color: white; font-family: sans-serif;">
+    <div style="font-size: 0.8em; color: #aaa; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px;">Specialized Agents</div>
+    <div class="menu-item" data-hq="management" style="padding: 8px; border-radius: 8px; cursor: pointer; font-size: 0.9em;">🛡️ Management</div>
+    <div class="menu-item" data-hq="business" style="padding: 8px; border-radius: 8px; cursor: pointer; font-size: 0.9em;">💼 Business</div>
+    <div class="menu-item" data-hq="commercial" style="padding: 8px; border-radius: 8px; cursor: pointer; font-size: 0.9em;">📈 Commercial</div>
+    <div class="menu-item" data-hq="community" style="padding: 8px; border-radius: 8px; cursor: pointer; font-size: 0.9em;">🤝 Community</div>
+    <div class="menu-item" data-hq="expansion" style="padding: 8px; border-radius: 8px; cursor: pointer; font-size: 0.9em;">🚀 Expansion</div>
+    <div class="menu-item" data-hq="system" style="padding: 8px; border-radius: 8px; cursor: pointer; font-size: 0.9em;">⚙️ System</div>
+    
+    <div style="height: 1px; background: #444; margin: 8px 0;"></div>
+    
+    <div style="font-size: 0.8em; color: #aaa; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px;">Horizontal Tools</div>
+    <div class="tool-item" data-tool="logs" style="padding: 8px; border-radius: 8px; cursor: pointer; font-size: 0.9em;">📜 View Activity Logs</div>
+    <div class="tool-item" data-tool="clear" style="padding: 8px; border-radius: 8px; cursor: pointer; font-size: 0.9em;">🧹 Clear Chat</div>
+</div>
+
+<script>
+const plusBtn = document.getElementById('plusBtn');
+const plusMenu = document.getElementById('plusMenu');
+
+if (plusBtn && plusMenu) {
+    plusBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        plusMenu.style.display = plusMenu.style.display === 'block' ? 'none' : 'block';
+    });
+
+    window.addEventListener('click', () => {
+        plusMenu.style.display = 'none';
+    });
+
+    document.querySelectorAll('.menu-item').forEach(item => {
+        item.addEventListener('click', (e) => {
+            const selectedHq = e.currentTarget.getAttribute('data-hq');
+            const hqSelector = document.getElementById('hqSelector');
+            if (hqSelector) {
+                hqSelector.value = selectedHq;
+            }
+            plusMenu.style.display = 'none';
+        });
+    });
+}
+</script>
+</body></html>

@@ -1,0 +1,26 @@
+[
+  {
+    "id": "action_1789120347642",
+    "action": "EXECUTE_REPAIR_PATCH",
+    "payload": {
+      "module": "storage",
+      "fix": "reindex"
+    },
+    "requiredRole": "ADMIN_EXECUTIVE",
+    "status": "APPROVED",
+    "createdAt": "2026-09-11T09:52:27.642Z",
+    "authorizedByRole": "ADMIN_EXECUTIVE"
+  },
+  {
+    "id": "action_1789120539294",
+    "action": "EXECUTE_REPAIR_PATCH",
+    "payload": {
+      "module": "storage",
+      "fix": "reindex"
+    },
+    "requiredRole": "ADMIN_EXECUTIVE",
+    "status": "APPROVED",
+    "createdAt": "2026-09-11T09:55:39.294Z",
+    "authorizedByRole": "ADMIN_EXECUTIVE"
+  }
+]

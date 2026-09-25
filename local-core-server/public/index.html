@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aethel UI</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #09090b;
+            color: white;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .header {
+            padding: 16px 20px;
+            font-size: 16px;
+            font-weight: 500;
+            color: #a1a1aa;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">Aethel</div>
+
+    <div style="position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 92%; max-width: 600px; z-index: 1000;">
+        
+        <div id="plusMenu" style="display: none; position: absolute; bottom: 65px; left: 0; width: 280px; background: #161619; border: 1px solid #2e2e33; border-radius: 20px; padding: 16px; box-shadow: 0 -10px 40px rgba(0,0,0,0.8); z-index: 1001; color: white;">
+            
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 16px; padding-bottom: 14px; border-bottom: 1px solid #26262b;">
+                <div style="background: #202025; border: 1px solid #2d2d35; border-radius: 12px; padding: 10px 4px; display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer;">
+                    <span style="font-size: 18px;">🖼️</span><span style="font-size: 10px; color: #ccc;">Photos</span>
+                </div>
+                <div style="background: #202025; border: 1px solid #2d2d35; border-radius: 12px; padding: 10px 4px; display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer;">
+                    <span style="font-size: 18px;">📷</span><span style="font-size: 10px; color: #ccc;">Camera</span>
+                </div>
+                <div style="background: #202025; border: 1px solid #2d2d35; border-radius: 12px; padding: 10px 4px; display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer;">
+                    <span style="font-size: 18px;">📎</span><span style="font-size: 10px; color: #ccc;">Files</span>
+                </div>
+                <div style="background: #202025; border: 1px solid #2d2d35; border-radius: 12px; padding: 10px 4px; display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer;">
+                    <span style="font-size: 18px;">📝</span><span style="font-size: 10px; color: #ccc;">Note</span>
+                </div>
+            </div>
+
+            <div style="font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #888; margin-bottom: 6px; padding-left: 4px;">Aethel</div>
+            
+            <div style="display: flex; flex-direction: column; gap: 2px;">
+                <div class="menu-item" data-hq="business" style="padding: 8px 10px; border-radius: 8px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-size: 13.5px;"><span>Business</span><span class="dot" style="width: 14px; height: 14px; border: 2px solid #666; border-radius: 50%; display: inline-block;"></span></div>
+                <div class="menu-item" data-hq="commercial" style="padding: 8px 10px; border-radius: 8px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-size: 13.5px;"><span>Commercial</span><span class="dot" style="width: 14px; height: 14px; border: 2px solid #666; border-radius: 50%; display: inline-block;"></span></div>
+                <div class="menu-item" data-hq="community" style="padding: 8px 10px; border-radius: 8px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-size: 13.5px;"><span>Community</span><span class="dot" style="width: 14px; height: 14px; border: 2px solid #666; border-radius: 50%; display: inline-block;"></span></div>
+                <div class="menu-item" data-hq="expansion" style="padding: 8px 10px; border-radius: 8px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-size: 13.5px;"><span>Expansion</span><span class="dot" style="width: 14px; height: 14px; border: 2px solid #666; border-radius: 50%; display: inline-block;"></span></div>
+                <div class="menu-item" data-hq="management" style="padding: 8px 10px; border-radius: 8px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-size: 13.5px;"><span>Management</span><span class="dot" style="width: 14px; height: 14px; border: 2px solid #3b82f6; background: #3b82f6; border-radius: 50%; display: inline-block;"></span></div>
+                <div class="menu-item" data-hq="system" style="padding: 8px 10px; border-radius: 8px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-size: 13.5px;"><span>System</span><span class="dot" style="width: 14px; height: 14px; border: 2px solid #666; border-radius: 50%; display: inline-block;"></span></div>
+            </div>
+        </div>
+
+        <div id="chatForm" style="display: flex; align-items: center; background: #18181b; border: 1px solid #27272a; border-radius: 40px; padding: 6px 14px; box-shadow: 0 4px 25px rgba(0,0,0,0.6); gap: 12px;">
+            <button type="button" id="plusBtn" style="background: none; border: none; color: #a1a1aa; font-size: 22px; cursor: pointer; padding: 0 4px; display: flex; align-items: center;">+</button>
+
+            <input type="text" id="inputBar" placeholder="Ask Aethel..." style="flex-grow: 1; background: none; border: none; color: white; font-size: 15px; outline: none; padding: 4px;" />
+
+            <button type="button" id="micBtn" style="background: none; border: none; color: #a1a1aa; cursor: pointer; display: flex; align-items: center; padding: 0 4px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v1a7 7 0 0 1-14 0v-1"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
+            </button>
+
+            <div style="width: 36px; height: 36px; border-radius: 50%; padding: 1px; background: linear-gradient(135deg, #3b82f6, #8b5cf6); display: flex; align-items: center; justify-content: center; cursor: pointer;">
+                <div style="width: 100%; height: 100%; border-radius: 50%; overflow: hidden; background: #18181b; display: flex; align-items: center; justify-content: center;">
+                    <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100" alt="Profile" style="width: 100%; height: 100%; object-fit: cover;" />
+                </div>
+            </div>
+        </div>
+        
+        <input type="hidden" id="hqSelector" value="management" />
+    </div>
+
+    <script>
+    const plusBtn = document.getElementById('plusBtn');
+    const plusMenu = document.getElementById('plusMenu');
+    const hqInput = document.getElementById('hqSelector');
+
+    plusBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        plusMenu.style.display = plusMenu.style.display === 'block' ? 'none' : 'block';
+    });
+
+    window.addEventListener('click', () => {
+        plusMenu.style.display = 'none';
+    });
+
+    plusMenu.addEventListener('click', (e) => {
+        e.stopPropagation();
+    });
+
+    document.querySelectorAll('.menu-item').forEach(item => {
+        item.addEventListener('click', (e) => {
+            const hq = e.currentTarget.getAttribute('data-hq');
+            hqInput.value = hq;
+            
+            document.querySelectorAll('.menu-item').forEach(el => {
+                const dot = el.querySelector('.dot');
+                dot.style.background = 'transparent';
+                dot.style.borderColor = '#666';
+            });
+            const activeDot = e.currentTarget.querySelector('.dot');
+            activeDot.style.background = '#3b82f6';
+            activeDot.style.borderColor = '#3b82f6';
+            
+            plusMenu.style.display = 'none';
+        });
+    });
+    </script>
+</body>
+</html>

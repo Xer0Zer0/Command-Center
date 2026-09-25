@@ -1,0 +1,23 @@
+0 verbose cli /data/data/com.termux/files/usr/bin/node /data/data/com.termux/files/usr/lib/node_modules/npm/bin/npm-cli.js
+1 info using npm@11.17.0
+2 info using node@v26.3.1
+3 silly config load:file:/data/data/com.termux/files/usr/lib/node_modules/npm/npmrc
+4 silly config load:file:/data/data/com.termux/files/home/aethel-app/.npmrc
+5 silly config load:file:/data/data/com.termux/files/home/.npmrc
+6 silly config load:file:/data/data/com.termux/files/usr/etc/npmrc
+7 verbose title npm exec http-server . -p 3004
+8 verbose argv "exec" "--" "http-server" "." "-p" "3004"
+9 verbose logfile logs-max:10 dir:/data/data/com.termux/files/home/.npm/_logs/2026-09-17T13_52_41_940Z-
+10 verbose logfile /data/data/com.termux/files/home/.npm/_logs/2026-09-17T13_52_41_940Z-debug-0.log
+11 silly logfile start cleaning logs, removing 1 files
+12 silly logfile done cleaning log files
+13 silly packumentCache heap:1174405120 maxSize:293601280 maxEntrySize:146800640
+14 http fetch GET 200 https://registry.npmjs.org/http-server 912ms (cache revalidated)
+15 silly packumentCache heap:1174405120 maxSize:293601280 maxEntrySize:146800640
+16 silly packumentCache heap:1174405120 maxSize:293601280 maxEntrySize:146800640
+17 verbose cwd /data/data/com.termux/files/home/aethel-app
+18 verbose os Linux 6.1.157-android14-11-gbd23337e42e7-ab14791245
+19 verbose node v26.3.1
+20 verbose npm  v11.17.0
+21 verbose exit 0
+22 info ok

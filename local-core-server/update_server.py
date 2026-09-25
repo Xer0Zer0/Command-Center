@@ -1,0 +1,252 @@
+import os
+
+server_path = 'command-core/aethel-core/server.js'
+
+html_content = """<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aethel Chat Box - Live</title>
+    <style>
+        body {
+            margin: 0; padding: 0; background: #09090b; color: white;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            height: 100vh; display: flex; flex-direction: column; justify-content: space-between;
+        }
+        .header {
+            padding: 16px 20px; font-size: 16px; font-weight: 500; color: #a1a1aa;
+            display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #18181b;
+            background: #09090b; position: sticky; top: 0; z-index: 100;
+        }
+        .menu-toggle-btn {
+            background: #18181b; border: 1px solid #27272a; width: 36px; height: 36px;
+            border-radius: 50%; display: flex; flex-direction: column; align-items: center;
+            justify-content: center; gap: 5px; cursor: pointer;
+        }
+        .menu-toggle-btn span { display: block; width: 16px; height: 2px; background: white; border-radius: 2px; }
+        #sideDrawer {
+            position: fixed; top: 0; left: -280px; width: 280px; height: 100vh;
+            background: #121215; border-right: 1px solid #27272a; z-index: 2000;
+            transition: left 0.3s ease; display: flex; flex-direction: column; box-shadow: 10px 0 30px rgba(0,0,0,0.8);
+        }
+        #sideDrawer.open { left: 0; }
+        .drawer-header {
+            padding: 20px; font-size: 18px; font-weight: 600; border-bottom: 1px solid #27272a;
+            display: flex; justify-content: space-between; align-items: center; color: white;
+        }
+        .drawer-section { padding: 16px 20px; border-bottom: 1px solid #1c1c21; }
+        .drawer-section-title { font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: #71717a; margin-bottom: 12px; }
+        .drawer-item { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 8px; cursor: pointer; color: #d4d4d8; font-size: 14px; }
+        .drawer-item:hover { background: #1c1c21; color: white; }
+        #drawerOverlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.6); z-index: 1999; }
+        #liveOverlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: radial-gradient(circle at center, #1e1b4b 0%, #09090b 80%); z-index: 3000;
+            flex-direction: column; justify-content: space-between; align-items: center; padding: 40px 20px; box-sizing: border-box;
+        }
+        .live-pulse-ring {
+            width: 140px; height: 140px; border-radius: 50%; background: rgba(59, 130, 246, 0.15);
+            display: flex; align-items: center; justify-content: center; position: relative; box-shadow: 0 0 50px rgba(59, 130, 246, 0.4);
+        }
+        .live-avatar { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 2px solid #60a5fa; }
+        #chatContainer {
+            flex-grow: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 16px; padding-bottom: 110px;
+        }
+        .message-row { display: flex; flex-direction: column; max-width: 80%; }
+        .message-row.user { align-self: flex-end; }
+        .message-row.assistant { align-self: flex-start; }
+        .message { padding: 12px 16px; border-radius: 16px; font-size: 15px; line-height: 1.5; word-break: break-word; }
+        .message-row.user .message { background: #27272a; color: #f4f4f5; border-bottom-right-radius: 4px; }
+        .message-row.assistant .message { background: #18181b; border: 1px solid #27272a; color: #f4f4f5; border-bottom-left-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div id="drawerOverlay" onclick="closeDrawer()"></div>
+    <div id="sideDrawer">
+        <div class="drawer-header">
+            <span>Aethel</span>
+            <button onclick="closeDrawer()" style="background: none; border: none; color: #a1a1aa; font-size: 20px; cursor: pointer;">&times;</button>
+        </div>
+        <div class="drawer-section">
+            <div class="drawer-section-title">Folders</div>
+            <div class="drawer-item">📁 <span>3KIG Corporate</span></div>
+            <div class="drawer-item">📁 <span>Projects & Design</span></div>
+        </div>
+    </div>
+    <div id="liveOverlay">
+        <div style="width: 100%; display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.08); padding: 6px 14px; border-radius: 20px; font-size: 13px; color: #93c5fd;">
+                <span style="width: 8px; height: 8px; background: #3b82f6; border-radius: 50%; display: inline-block; box-shadow: 0 0 8px #3b82f6;"></span>
+                Aethel Live Active (v3)
+            </div>
+            <button onclick="closeAgentLive()" style="background: rgba(255,255,255,0.1); border: none; color: white; width: 36px; height: 36px; border-radius: 50%; font-size: 18px; cursor: pointer;">&times;</button>
+        </div>
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 24px;">
+            <div class="live-pulse-ring"><img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100" class="live-avatar" alt="Aethel Live"></div>
+            <div style="text-align: center;"><h2 style="margin: 0 0 6px 0; font-size: 22px; font-weight: 600;">Aethel Live</h2><p id="liveStatusText" style="margin: 0; color: #94a3b8; font-size: 14px;">Listening... Speak now.</p></div>
+        </div>
+        <div style="display: flex; gap: 20px; align-items: center; margin-bottom: 10px;">
+            <button id="muteLiveBtn" onclick="toggleMute()" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); color: white; padding: 12px 24px; border-radius: 30px; font-size: 14px; cursor: pointer;">🔊 <span id="muteLiveText">Mute Aethel</span></button>
+            <button onclick="closeAgentLive()" style="background: #ef4444; border: none; color: white; padding: 12px 28px; border-radius: 30px; font-size: 14px; font-weight: 500; cursor: pointer;">End Live</button>
+        </div>
+    </div>
+    <div class="header">
+        <button class="menu-toggle-btn" onclick="openDrawer()" title="Open Menu"><span></span><span></span></button>
+        <span>Aethel [DYNAMIC ROUTE v3]</span>
+    </div>
+    <div id="chatContainer">
+        <div class="message-row assistant"><div class="message">Success! v3 loaded. Tap + or Aethel's avatar to test.</div></div>
+    </div>
+    <div style="position: fixed; bottom: 15px; left: 0; width: 100%; display: flex; justify-content: center; z-index: 2000;">
+        <div style="width: 94%; max-width: 600px; position: relative;">
+            <div id="plusMenu" style="display: none; position: absolute; bottom: 65px; left: 0; width: 100%; background: #18181b; border: 1px solid #27272a; border-radius: 20px; padding: 16px; box-shadow: 0 -10px 30px rgba(0,0,0,0.8); z-index: 2500;">
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;">
+                    <div onclick="alert('Photos selected'); togglePlusMenu();" style="background: #202025; padding: 12px; border-radius: 12px; text-align: center; cursor: pointer; font-size: 12px; color: white;">🖼️ Photos</div>
+                    <div onclick="alert('Camera selected'); togglePlusMenu();" style="background: #202025; padding: 12px; border-radius: 12px; text-align: center; cursor: pointer; font-size: 12px; color: white;">📷 Camera</div>
+                    <div onclick="alert('Files selected'); togglePlusMenu();" style="background: #202025; padding: 12px; border-radius: 12px; text-align: center; cursor: pointer; font-size: 12px; color: white;">📎 Files</div>
+                    <div onclick="alert('Note selected'); togglePlusMenu();" style="background: #202025; padding: 12px; border-radius: 12px; text-align: center; cursor: pointer; font-size: 12px; color: white;">📝 Note</div>
+                </div>
+            </div>
+            <div style="display: flex; align-items: center; background: #18181b; border: 1px solid #27272a; border-radius: 40px; padding: 6px 14px; box-shadow: 0 4px 25px rgba(0,0,0,0.6); gap: 10px;">
+                <button type="button" onclick="togglePlusMenu(event)" style="background: none; border: none; color: #a1a1aa; font-size: 24px; cursor: pointer; padding: 0 6px;">+</button>
+                <input type="text" id="inputBar" oninput="handleInput()" onkeydown="handleKey(event)" placeholder="Ask Aethel..." style="flex-grow: 1; background: none; border: none; color: white; font-size: 15px; outline: none; padding: 4px;" />
+                <button type="button" style="background: none; border: none; color: #a1a1aa; cursor: pointer; padding: 0 4px;">🎤</button>
+                <button type="button" id="actionEndBtn" onclick="handleSendOrLive()" style="width: 38px; height: 38px; border-radius: 50%; border: none; padding: 1px; background: linear-gradient(135deg, #3b82f6, #8b5cf6); display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0;">
+                    <div id="actionEndInner" style="width: 100%; height: 100%; border-radius: 50%; overflow: hidden; background: #18181b; display: flex; align-items: center; justify-content: center;">
+                        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100" alt="Aethel" style="width: 100%; height: 100%; object-fit: cover;" />
+                    </div>
+                </button>
+            </div>
+        </div>
+    </div>
+    <script>
+    function openDrawer() { document.getElementById('sideDrawer').classList.add('open'); document.getElementById('drawerOverlay').style.display = 'block'; }
+    function closeDrawer() { document.getElementById('sideDrawer').classList.remove('open'); document.getElementById('drawerOverlay').style.display = 'none'; }
+    function togglePlusMenu(e) { if (e) e.stopPropagation(); const menu = document.getElementById('plusMenu'); menu.style.display = menu.style.display === 'block' ? 'none' : 'block'; }
+    window.onclick = (e) => { const menu = document.getElementById('plusMenu'); const plusBtn = document.querySelector('button[onclick*="togglePlusMenu"]'); if (menu && !menu.contains(e.target) && plusBtn && !plusBtn.contains(e.target)) { menu.style.display = 'none'; } };
+    let isAethelMuted = false;
+    let liveRecognition = null;
+    function toggleMute() {
+        isAethelMuted = !isAethelMuted;
+        if ('speechSynthesis' in window) { window.speechSynthesis.cancel(); }
+        if (isAethelMuted) {
+            document.getElementById('muteLiveBtn').style.background = '#ef4444';
+            document.getElementById('muteLiveText').textContent = 'Unmute Aethel';
+            document.getElementById('liveStatusText').textContent = 'Aethel voice muted';
+        } else {
+            document.getElementById('muteLiveBtn').style.background = 'rgba(255,255,255,0.1)';
+            document.getElementById('muteLiveText').textContent = 'Mute Aethel';
+            document.getElementById('liveStatusText').textContent = 'Listening... Speak now.';
+        }
+    }
+    function launchAgentLive() {
+        document.getElementById('liveOverlay').style.display = 'flex';
+        isAethelMuted = false;
+        document.getElementById('muteLiveBtn').style.background = 'rgba(255,255,255,0.1)';
+        document.getElementById('muteLiveText').textContent = 'Mute Aethel';
+        document.getElementById('liveStatusText').textContent = 'Listening... Speak now.';
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (SpeechRecognition) {
+            if (liveRecognition) { try { liveRecognition.stop(); } catch(e){} }
+            liveRecognition = new SpeechRecognition();
+            liveRecognition.continuous = true;
+            liveRecognition.interimResults = true;
+            liveRecognition.lang = 'en-US';
+            liveRecognition.onresult = (event) => {
+                let transcript = '';
+                for (let i = event.resultIndex; i < event.results.length; i++) { transcript += event.results[i][0].transcript; }
+                if (transcript.trim().length > 0) {
+                    document.getElementById('liveStatusText').textContent = 'Heard: "' + transcript + '"';
+                    const chatContainer = document.getElementById('chatContainer');
+                    const userRow = document.createElement('div');
+                    userRow.className = 'message-row user';
+                    userRow.innerHTML = '<div class="message">' + transcript.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</div>';
+                    chatContainer.appendChild(userRow);
+                    chatContainer.scrollTop = chatContainer.scrollHeight;
+                    setTimeout(() => {
+                        const responseText = 'Aethel Live acknowledged: "' + transcript + '".';
+                        const assistantRow = document.createElement('div');
+                        assistantRow.className = 'message-row assistant';
+                        assistantRow.innerHTML = '<div class="message">' + responseText + '</div>';
+                        chatContainer.appendChild(assistantRow);
+                        chatContainer.scrollTop = chatContainer.scrollHeight;
+                        if (!isAethelMuted && 'speechSynthesis' in window) { window.speechSynthesis.speak(new SpeechSynthesisUtterance(responseText)); }
+                    }, 500);
+                    closeAgentLive();
+                }
+            };
+            try { liveRecognition.start(); } catch(e){}
+        }
+    }
+    function closeAgentLive() { if (liveRecognition) { try { liveRecognition.stop(); } catch(e){} } document.getElementById('liveOverlay').style.display = 'none'; }
+    function handleInput() {
+        const val = document.getElementById('inputBar').value.trim();
+        const btn = document.getElementById('actionEndBtn');
+        const inner = document.getElementById('actionEndInner');
+        if (val.length > 0) {
+            btn.style.background = '#3b82f6';
+            inner.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>';
+        } else {
+            btn.style.background = 'linear-gradient(135deg, #3b82f6, #8b5cf6)';
+            inner.innerHTML = '<img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100" alt="Aethel" style="width: 100%; height: 100%; object-fit: cover;" />';
+        }
+    }
+    function handleSendOrLive() {
+        const inputBar = document.getElementById('inputBar');
+        const val = inputBar.value.trim();
+        const chatContainer = document.getElementById('chatContainer');
+        const btn = document.getElementById('actionEndBtn');
+        const inner = document.getElementById('actionEndInner');
+        if (val.length > 0) {
+            const userRow = document.createElement('div');
+            userRow.className = 'message-row user';
+            userRow.innerHTML = '<div class="message">' + val.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</div>';
+            chatContainer.appendChild(userRow);
+            inputBar.value = '';
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+            btn.style.background = 'linear-gradient(135deg, #3b82f6, #8b5cf6)';
+            inner.innerHTML = '<img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100" alt="Aethel" style="width: 100%; height: 100%; object-fit: cover;" />';
+            setTimeout(() => {
+                const reply = 'Aethel received: "' + val + '".';
+                const botRow = document.createElement('div');
+                botRow.className = 'message-row assistant';
+                botRow.innerHTML = '<div class="message">' + reply + '</div>';
+                chatContainer.appendChild(botRow);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+                if (!isAethelMuted && 'speechSynthesis' in window) { window.speechSynthesis.speak(new SpeechSynthesisUtterance(reply)); }
+            }, 500);
+        } else {
+            launchAgentLive();
+        }
+    }
+    function handleKey(e) { if (e.key === 'Enter') { handleSendOrLive(); } }
+    </script>
+</body>
+</html>"""
+
+if os.path.exists(server_path):
+    with open(server_path, 'r') as f:
+        code = f.read()
+    
+    # Remove any old app.get('/') route if present
+    if "app.get('/'," in code:
+        parts = code.split("app.get('/',")
+        # Keep everything before and after the old route up to app.listen
+        code = parts[0] + parts[1].split("app.listen(")[-1]
+        code = "app.listen(" + code
+
+    route_code = f"""
+app.get('/', (req, res) => {{
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    res.send(`{html_content}`);
+}});
+"""
+
+    if "app.listen(" in code:
+        code = code.replace("app.listen(", route_code + "\n\napp.listen(")
+        with open(server_path, 'w') as f:
+            f.write(code)
+        print("Successfully updated server.js with dynamic route!")

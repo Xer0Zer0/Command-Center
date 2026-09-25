@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Aethel Command Center</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aethel</title>
     <style>
         * {
             box-sizing: border-box;
@@ -12,31 +12,23 @@
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
 
-        html, body {
-            width: 100%;
-            height: 100%;
-            background-color: #f7f8fa;
-            color: #1a1a1a;
+        body {
+            background-color: #ffffff;
+            color: #111111;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
             overflow: hidden;
         }
 
-        body {
-            display: flex;
-            flex-direction: column;
-            /* Ensures Chrome mobile handles dynamic toolbar resizing cleanly */
-            height: 100dvh; 
-            position: relative;
-        }
-
-        /* --- 1. Top Header Navigation --- */
+        /* Top Navigation Header */
         header {
             display: flex;
             align-items: center;
-            padding: 16px 20px;
-            background-color: #ffffff;
-            border-bottom: 1px solid #eaeaea;
+            padding: 16px;
             gap: 16px;
-            flex-shrink: 0;
+            border-bottom: 1px solid #f0f0f0;
         }
 
         .menu-btn {
@@ -45,306 +37,244 @@
             cursor: pointer;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
-            width: 20px;
-            height: 14px;
+            gap: 4px;
         }
 
         .menu-btn span {
             display: block;
+            width: 20px;
             height: 2px;
-            width: 100%;
-            background-color: #1a1a1a;
-            border-radius: 2px;
+            background-color: #111111;
         }
 
-        .header-title {
+        h1 {
             font-size: 18px;
-            font-weight: 400;
-            color: #1a1a1a;
+            font-weight: 500;
         }
 
-        /* --- 2. Main Viewport Area --- */
-        main {
-            flex: 1;
-            position: relative;
-            background-color: #ffffff;
-            width: 100%;
-            overflow: hidden;
+        /* Bottom Floating Operations & Prompt Dock */
+        .dock-container {
+            padding: 12px 16px 24px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            background: #ffffff;
         }
 
-        /* --- 3. Floating Operations & Settings Tray --- */
-        .tray-container {
-            position: absolute;
-            bottom: 76px;
-            left: 16px;
-            right: 16px;
-            background-color: #ffffff;
-            border-radius: 24px;
-            padding: 16px 20px 20px 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-            border: 1px solid #f0f0f0;
+        /* Operations Tray */
+        .operations-tray {
+            background: #f8f9fa;
+            border-radius: 20px;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+            border: 1px solid #f1f3f5;
+        }
+
+        .operations-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+            font-weight: 600;
+            color: #8e8e93;
+            letter-spacing: 0.5px;
+            padding: 0 4px;
         }
 
         .tray-handle {
-            width: 36px;
-            height: 4px;
+            width: 32px;
+            height: 3px;
             background-color: #d1d5db;
             border-radius: 2px;
-            margin: 0 auto 16px auto;
+            align-self: center;
+            margin-bottom: 4px;
         }
 
-        .section-label {
-            font-size: 11px;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-            color: #8e8e93;
-            margin-bottom: 12px;
-        }
-
-        .tools-grid {
+        .operations-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-            margin-bottom: 20px;
+            gap: 8px;
         }
 
-        .tool-card {
-            background-color: #f8f9fa;
-            border: 1px solid #edf0f2;
-            border-radius: 16px;
-            padding: 12px 6px;
+        .op-card {
+            background: #ffffff;
+            border-radius: 14px;
+            padding: 10px 6px;
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 8px;
             cursor: pointer;
+            border: 1px solid #edf2f7;
+            transition: all 0.2s ease;
         }
 
-        .tool-card.active {
-            background-color: #fffaf7;
-            border-color: #ff7a45;
+        .op-card:active {
+            transform: scale(0.96);
+            background: #f1f3f5;
         }
 
-        .tool-icon {
-            font-size: 20px;
-            height: 28px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .tool-name {
-            font-size: 12px;
-            color: #3a3a3c;
-            font-weight: 400;
-        }
-
-        .tool-card.active .tool-name {
-            color: #ff5722;
-        }
-
-        /* Settings Toggle Row */
-        .settings-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background-color: #f8f9fa;
-            border: 1px solid #edf0f2;
-            border-radius: 16px;
-            padding: 12px 16px;
-        }
-
-        .settings-left {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 14px;
-            color: #3a3a3c;
-        }
-
-        .mode-icon {
-            font-size: 16px;
-        }
-
-        /* Toggle Switch */
-        .switch {
-            position: relative;
-            display: inline-block;
+        .op-icon-shell {
             width: 44px;
-            height: 24px;
-        }
-
-        .switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background-color: #cbd5e1;
-            transition: .3s;
-            border-radius: 24px;
-        }
-
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 18px;
-            width: 18px;
-            left: 3px;
-            bottom: 3px;
-            background-color: white;
-            transition: .3s;
-            border-radius: 50%;
-        }
-
-        input:checked + .slider {
-            background-color: #3b82f6;
-        }
-
-        input:checked + .slider:before {
-            transform: translateX(20px);
-        }
-
-        /* --- 4. Bottom Prompt Bar --- */
-        .prompt-dock {
-            position: absolute;
-            bottom: 16px;
-            left: 16px;
-            right: 16px;
-            background-color: #ffffff;
-            border: 1px solid #e5e7eb;
-            border-radius: 30px;
-            padding: 10px 16px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
-        }
-
-        .close-icon {
-            background: none;
-            border: none;
-            color: #ef4444;
-            font-size: 16px;
-            cursor: pointer;
-            font-weight: bold;
+            height: 44px;
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 20px;
-            height: 20px;
+            background: #f1f3f5;
         }
 
-        .prompt-input {
+        .op-label {
+            font-size: 12px;
+            font-weight: 400;
+            color: #374151;
+        }
+
+        /* Ask Aethel Input Bar */
+        .prompt-bar {
+            display: flex;
+            align-items: center;
+            background: #f8f9fa;
+            border-radius: 28px;
+            padding: 8px 12px 8px 16px;
+            border: 1px solid #f1f3f5;
+            gap: 8px;
+        }
+
+        .prompt-bar input {
             flex: 1;
             border: none;
-            outline: none;
-            font-size: 15px;
-            color: #9ca3af;
             background: transparent;
+            font-size: 15px;
+            color: #111111;
+            outline: none;
         }
 
-        .prompt-input::placeholder {
+        .prompt-bar input::placeholder {
             color: #9ca3af;
         }
 
-        .mic-btn {
+        .action-icon-btn {
             background: none;
             border: none;
             cursor: pointer;
+            width: 32px;
+            height: 32px;
             display: flex;
             align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            color: #6b7280;
         }
 
-        /* Audio Waveform Graphic Bars */
-        .audio-waveform {
+        .action-icon-btn:active {
+            background: #e5e7eb;
+        }
+
+        .mic-waveform {
             display: flex;
             align-items: center;
-            gap: 3px;
-            height: 16px;
+            gap: 2px;
+            height: 14px;
         }
 
-        .audio-waveform span {
+        .mic-waveform span {
             display: block;
-            width: 3px;
-            border-radius: 2px;
+            width: 2px;
+            background-color: #3b82f6;
+            border-radius: 1px;
         }
 
-        .bar-1 { height: 8px; background-color: #3b82f6; }
-        .bar-2 { height: 14px; background-color: #10b981; }
-        .bar-3 { height: 10px; background-color: #f59e0b; }
-        .bar-4 { height: 16px; background-color: #ef4444; }
+        .mic-waveform span:nth-child(1) { height: 8px; }
+        .mic-waveform span:nth-child(2) { height: 14px; }
+        .mic-waveform span:nth-child(3) { height: 10px; }
+        .mic-waveform span:nth-child(4) { height: 6px; }
     </style>
 </head>
 <body>
 
-    <!-- Top Header Navigation -->
+    <!-- Top Navigation -->
     <header>
         <button class="menu-btn" aria-label="Menu">
             <span></span>
             <span></span>
             <span></span>
         </button>
-        <h1 class="header-title">Aethel</h1>
+        <h1>Aethel</h1>
     </header>
 
-    <!-- Main Viewport Workspace -->
-    <main>
-        <!-- Floating Operations & Settings Tray -->
-        <div class="tray-container">
+    <!-- Center Workspace Area -->
+    <main></main>
+
+    <!-- Bottom Dock -->
+    <div class="dock-container">
+        
+        <!-- Operations Tray -->
+        <div class="operations-tray">
             <div class="tray-handle"></div>
-
-            <div class="section-label">TOOLS</div>
-            <div class="tools-grid">
-                <div class="tool-card">
-                    <div class="tool-icon">📷</div>
-                    <span class="tool-name">Camera</span>
-                </div>
-                <div class="tool-card active">
-                    <div class="tool-icon">😊</div>
-                    <span class="tool-name">Agents</span>
-                </div>
-                <div class="tool-card">
-                    <div class="tool-icon">📎</div>
-                    <span class="tool-name">Files</span>
-                </div>
-                <div class="tool-card">
-                    <div class="tool-icon">📁</div>
-                    <span class="tool-name">Drive</span>
-                </div>
+            <div class="operations-header">
+                <span>OPERATIONS</span>
             </div>
-
-            <div class="section-label">SETTINGS</div>
-            <div class="settings-row">
-                <div class="settings-left">
-                    <span class="mode-icon">🌗</span>
-                    <span>Dark / Light Mode</span>
+            <div class="operations-grid">
+                
+                <!-- Agents -->
+                <div class="op-card">
+                    <div class="op-icon-shell" style="background: #fffbeb;">
+                        <span style="font-size: 20px;">😊</span>
+                    </div>
+                    <span class="op-label">Agents</span>
                 </div>
-                <label class="switch">
-                    <input type="checkbox">
-                    <span class="slider"></span>
-                </label>
-            </div>
-        </div>
 
-        <!-- Bottom Prompt Bar -->
-        <div class="prompt-dock">
-            <button class="close-icon" aria-label="Close">✕</button>
-            <input type="text" class="prompt-input" placeholder="Ask Aethel" readonly>
-            <button class="mic-btn" aria-label="Microphone">🎤</button>
-            <div class="audio-waveform" aria-label="Audio Waveform">
-                <span class="bar-1"></span>
-                <span class="bar-2"></span>
-                <span class="bar-3"></span>
-                <span class="bar-4"></span>
+                <!-- Files -->
+                <div class="op-card">
+                    <div class="op-icon-shell" style="background: #f8fafc;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+                    </div>
+                    <span class="op-label">Files</span>
+                </div>
+
+                <!-- Drive -->
+                <div class="op-card">
+                    <div class="op-icon-shell" style="background: #fefce8;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#eab308" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                    </div>
+                    <span class="op-label">Drive</span>
+                </div>
+
+                <!-- Folder -->
+                <div class="op-card">
+                    <div class="op-icon-shell" style="background: #fefce8;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                    </div>
+                    <span class="op-label">Folder</span>
+                </div>
+
             </div>
         </div>
-    </main>
+
+        <!-- Ask Aethel Input Bar -->
+        <div class="prompt-bar">
+            <button class="action-icon-btn" aria-label="Close">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+            <input type="text" placeholder="Ask Aethel">
+            <button class="action-icon-btn" aria-label="Voice input">
+                <div class="mic-waveform">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </button>
+            <button class="action-icon-btn" aria-label="Submit" style="color: #3b82f6;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </button>
+        </div>
+
+    </div>
 
 </body>
 </html>
