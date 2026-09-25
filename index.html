@@ -2,538 +2,290 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aethel</title>
     <style>
         * {
             box-sizing: border-box;
-        }
-        html, body {
-            height: 100%;
             margin: 0;
             padding: 0;
-            background-color: var(--bg-color, #ffffff);
-            color: var(--text-color, #111111);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            overflow: hidden;
-            transition: background-color 0.3s ease, color 0.3s ease;
-        }
-        .app-container {
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-            width: 100%;
-            max-width: 480px;
-            margin: 0 auto;
-        }
-        .header {
-            display: flex;
-            align-items: center;
-            padding: 12px 16px;
-            gap: 16px;
-            flex-shrink: 0;
-        }
-        .canvas-area {
-            flex: 1;
-            overflow-y: auto;
-        }
-        
-        /* Bottom Wrapper */
-        .bottom-wrapper {
-            flex-shrink: 0;
-            padding: 8px 16px 16px 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            background-color: var(--bg-color, #ffffff);
-            transition: background-color 0.3s ease;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
 
-        /* Work Center Popup Modal */
-        .work-center-menu {
-            background-color: var(--card-bg, #ffffff);
-            border: 1px solid var(--border-color, #e5e7eb);
-            box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.06);
-            width: 100%;
-            padding: 10px 14px;
-            border-radius: 20px;
+        body {
+            background-color: #ffffff;
+            color: #111111;
+            height: 100vh;
             display: flex;
             flex-direction: column;
-            gap: 8px;
-            transition: background-color 0.3s ease, border-color 0.3s ease;
+            justify-content: space-between;
+            overflow: hidden;
         }
-        .work-center-menu.hidden {
-            display: none;
+
+        /* Top Navigation Header */
+        header {
+            display: flex;
+            align-items: center;
+            padding: 16px;
+            gap: 16px;
+            border-bottom: 1px solid #f0f0f0;
         }
-        .menu-handle-bar {
+
+        .menu-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .menu-btn span {
+            display: block;
+            width: 20px;
+            height: 2px;
+            background-color: #111111;
+        }
+
+        h1 {
+            font-size: 18px;
+            font-weight: 500;
+        }
+
+        /* Bottom Floating Operations & Prompt Dock */
+        .dock-container {
+            padding: 12px 16px 24px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            background: #ffffff;
+        }
+
+        /* Operations Tray */
+        .operations-tray {
+            background: #f8f9fa;
+            border-radius: 20px;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+            border: 1px solid #f1f3f5;
+        }
+
+        .operations-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+            font-weight: 600;
+            color: #8e8e93;
+            letter-spacing: 0.5px;
+            padding: 0 4px;
+        }
+
+        .tray-handle {
             width: 32px;
             height: 3px;
             background-color: #d1d5db;
             border-radius: 2px;
-            margin: 0 auto;
-        }
-        .section-title {
-            font-size: 10px;
-            color: #9ca3af;
-            letter-spacing: 0.8px;
-            font-weight: 700;
-        }
-        
-        /* Horizontally Scrollable Tools Container */
-        .tools-scroll-container {
-            display: flex;
-            gap: 8px;
-            overflow-x: auto;
-            scroll-snap-type: x mandatory;
-            padding-bottom: 4px;
-            scrollbar-width: none;
-        }
-        .tools-scroll-container::-webkit-scrollbar {
-            display: none;
+            align-self: center;
+            margin-bottom: 4px;
         }
 
-        .tool-card {
-            flex: 0 0 calc((100% - 24px) / 4);
-            scroll-snap-align: start;
-            background-color: var(--card-bg, #ffffff);
-            border: 1px solid var(--border-color, #e5e7eb);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+        .operations-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+
+        .op-card {
+            background: #ffffff;
             border-radius: 14px;
-            padding: 6px 4px;
+            padding: 10px 6px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 4px;
+            gap: 8px;
             cursor: pointer;
-            transition: background-color 0.3s ease, border-color 0.3s ease;
+            border: 1px solid #edf2f7;
+            transition: all 0.2s ease;
         }
-        .tool-icon-shell {
-            width: 38px;
-            height: 38px;
-            border-radius: 10px;
+
+        .op-card:active {
+            transform: scale(0.96);
+            background: #f1f3f5;
+        }
+
+        /* Agent Icon Shell with Fixed Cropping */
+        .op-icon-shell {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            overflow: hidden;
             display: flex;
             align-items: center;
             justify-content: center;
-            overflow: hidden;
-            background-color: #f3f4f6;
-            flex-shrink: 0;
+            background: #f1f3f5;
+            position: relative;
         }
-        .tool-icon-shell img {
+
+        .op-icon-shell img {
             width: 130%;
             height: 130%;
             object-fit: cover;
             object-position: center;
-            display: block;
-        }
-        .tool-icon-shell span {
-            font-size: 18px;
-        }
-        .tool-label {
-            font-size: 10px;
-            color: var(--text-color, #374151);
-            font-weight: 500;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 100%;
         }
 
-        /* Settings Section */
-        #settingSection {
-            display: none;
-            flex-direction: column;
-            gap: 6px;
-        }
-        #settingSection.active {
-            display: flex;
-        }
-        .settings-row {
-            background-color: var(--card-bg, #ffffff);
-            border: 1px solid var(--border-color, #e5e7eb);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
-            border-radius: 12px;
-            padding: 6px 12px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            transition: background-color 0.3s ease, border-color 0.3s ease;
-        }
-        .settings-label {
-            font-size: 11px;
-            color: var(--text-color, #374151);
-            font-weight: 500;
-        }
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 34px;
-            height: 18px;
-        }
-        .switch input { 
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background-color: #cbd5e1;
-            transition: .3s;
-            border-radius: 18px;
-        }
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 12px;
-            width: 12px;
-            left: 3px;
-            bottom: 3px;
-            background-color: white;
-            transition: .3s;
-            border-radius: 50%;
-        }
-        input:checked + .slider {
-            background-color: #4b5563;
-        }
-        input:checked + .slider:before {
-            transform: translateX(16px);
+        .op-label {
+            font-size: 12px;
+            font-weight: 400;
+            color: #374151;
         }
 
-        /* Bottom Chat Input Bar */
-        .chat-input-bar {
-            background-color: var(--card-bg, #ffffff);
-            border: 1px solid var(--border-color, #e5e7eb);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+        /* Ask Aethel Input Bar */
+        .prompt-bar {
             display: flex;
             align-items: center;
-            padding: 8px 14px;
-            gap: 12px;
+            background: #f8f9fa;
             border-radius: 28px;
-            flex-shrink: 0;
-            transition: background-color 0.3s ease, border-color 0.3s ease;
+            padding: 8px 12px 8px 16px;
+            border: 1px solid #f1f3f5;
+            gap: 8px;
         }
-        .menu-trigger-btn {
+
+        .prompt-bar input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            font-size: 15px;
+            color: #111111;
+            outline: none;
+        }
+
+        .prompt-bar input::placeholder {
+            color: #9ca3af;
+        }
+
+        .action-icon-btn {
             background: none;
             border: none;
-            color: #ef4444;
-            font-size: 18px;
-            font-weight: bold;
             cursor: pointer;
-            padding: 0;
+            width: 32px;
+            height: 32px;
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 24px;
-            height: 24px;
+            border-radius: 50%;
+            color: #6b7280;
         }
-        .chat-input {
-            flex: 1;
-            background: transparent;
-            border: none;
-            color: var(--text-color, #111111);
-            font-size: 14px;
-            outline: none;
-        }
-        .chat-input::placeholder {
-            color: #9ca3af;
-        }
-        .action-icons {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .mic-icon {
-            font-size: 15px;
-            cursor: pointer;
-        }
-        .waveform {
-            display: flex;
-            align-items: center;
-            gap: 3px;
-            height: 12px;
-        }
-        .waveform span {
-            display: block;
-            width: 3px;
-            border-radius: 2px;
-            animation: pulse 1.2s infinite ease-in-out;
-        }
-        .waveform span:nth-child(1) { height: 6px; background-color: #3b82f6; animation-delay: 0.1s; }
-        .waveform span:nth-child(2) { height: 10px; background-color: #10b981; animation-delay: 0.3s; }
-        .waveform span:nth-child(3) { height: 8px; background-color: #f59e0b; animation-delay: 0.2s; }
-        .waveform span:nth-child(4) { height: 12px; background-color: #ef4444; animation-delay: 0.4s; }
 
-        @keyframes pulse {
-            0%, 100% { transform: scaleY(0.7); }
-            50% { transform: scaleY(1.2); }
+        .action-icon-btn:active {
+            background: #e5e7eb;
         }
+
+        .mic-waveform {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            height: 14px;
+        }
+
+        .mic-waveform span {
+            display: block;
+            width: 2px;
+            background-color: #3b82f6;
+            border-radius: 1px;
+        }
+
+        .mic-waveform span:nth-child(1) { height: 8px; }
+        .mic-waveform span:nth-child(2) { height: 14px; }
+        .mic-waveform span:nth-child(3) { height: 10px; }
+        .mic-waveform span:nth-child(4) { height: 6px; }
     </style>
 </head>
 <body>
 
-    <div class="app-container">
-        <!-- Top Header Bar -->
-        <div class="header">
-            <span style="font-size: 18px; cursor: pointer;">☰</span>
-            <span style="font-size: 16px; font-weight: 600;">Aethel</span>
-        </div>
+    <!-- Top Navigation -->
+    <header>
+        <button class="menu-btn" aria-label="Menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <h1>Aethel</h1>
+    </header>
 
-        <!-- Canvas Area -->
-        <div class="canvas-area"></div>
+    <!-- Center Workspace Area (Blank canvas for application views) -->
+    <main></main>
 
-        <!-- Bottom Interface Wrapper -->
-        <div class="bottom-wrapper">
-            
-            <!-- Work Center Popup Menu -->
-            <div id="workCenterMenu" class="work-center-menu">
-                <div class="menu-handle-bar"></div>
+    <!-- Bottom Dock -->
+    <div class="dock-container">
+        
+        <!-- Operations Tray -->
+        <div class="operations-tray">
+            <div class="tray-handle"></div>
+            <div class="operations-header">
+                <span>OPERATIONS</span>
+            </div>
+            <div class="operations-grid">
                 
-                <div class="section-title">OPERATIONS</div>
-                <div class="tools-scroll-container">
-                    <div class="tool-card">
-                        <div class="tool-icon-shell">
-                            <img src="./1000007111.png" alt="Agents">
-                        </div>
-                        <span class="tool-label">Agents</span>
+                <!-- Agents Icon with Custom Cropped Image -->
+                <div class="op-card">
+                    <div class="op-icon-shell">
+                        <img src="./1000007111.png" alt="Agents Logo">
                     </div>
-                    <div class="tool-card">
-                        <div class="tool-icon-shell">
-                            <span>📷</span>
-                        </div>
-                        <span class="tool-label">Camera</span>
-                    </div>
-                    <div class="tool-card">
-                        <div class="tool-icon-shell">
-                            <span>📁</span>
-                        </div>
-                        <span class="tool-label">Media</span>
-                    </div>
-                    <div class="tool-card">
-                        <div class="tool-icon-shell">
-                            <span>🗂️</span>
-                        </div>
-                        <span class="tool-label">Storage</span>
-                    </div>
-                    <div class="tool-card" onclick="toggleSettingSection()">
-                        <div class="tool-icon-shell">
-                            <span>⚙️</span>
-                        </div>
-                        <span class="tool-label">Setting</span>
-                    </div>
+                    <span class="op-label">Agents</span>
                 </div>
 
-                <!-- SETTING section -->
-                <div id="settingSection">
-                    <div class="section-title">SETTING</div>
-                    <div class="settings-row">
-                        <span class="settings-label">🌓 Dark / Light Mode</span>
-                        <label class="switch">
-                            <input type="checkbox" id="themeToggle" onchange="toggleTheme()">
-                            <span class="slider"></span>
-                        </label>
+                <!-- Camera -->
+                <div class="op-card">
+                    <div class="op-icon-shell" style="background: #eef2ff;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
                     </div>
+                    <span class="op-label">Camera</span>
                 </div>
-            </div>
 
-            <!-- Bottom Chat Input Bar -->
-            <div class="chat-input-bar">
-                <button id="triggerBtn" class="menu-trigger-btn" onclick="toggleMenu()">×</button>
-                <input type="text" class="chat-input" placeholder="Ask Aethel" />
-                <div class="action-icons">
-                    <span class="mic-icon">🎙️</span>
-                    <div class="waveform">
-                        <span></span><span></span><span></span><span></span>
+                <!-- Media -->
+                <div class="op-card">
+                    <div class="op-icon-shell" style="background: #fef3c7;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
                     </div>
+                    <span class="op-label">Media</span>
                 </div>
+
+                <!-- Storage -->
+                <div class="op-card">
+                    <div class="op-icon-shell" style="background: #f0fdf4;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                    </div>
+                    <span class="op-label">Storage</span>
+                </div>
+
             </div>
         </div>
-    </div>
 
-    <script>
-        function toggleMenu() {
-            const menu = document.getElementById('workCenterMenu');
-            const btn = document.getElementById('triggerBtn');
-            
-            if (menu.classList.contains('hidden')) {
-                menu.classList.remove('hidden');
-                btn.textContent = '×';
-            } else {
-                menu.classList.add('hidden');
-                btn.textContent = '+';
-            }
-        }
-
-        function toggleSettingSection() {
-            const settingSection = document.getElementById('settingSection');
-            settingSection.classList.toggle('active');
-        }
-
-        function toggleTheme() {
-            const isDark = document.getElementById('themeToggle').checked;
-            const root = document.documentElement;
-            
-            if (isDark) {
-                root.style.setProperty('--bg-color', '#111827');
-                root.style.setProperty('--card-bg', '#1f2937');
-                root.style.setProperty('--text-color', '#f9fafb');
-                root.style.setProperty('--border-color', '#374151');
-            } else {
-                root.style.setProperty('--bg-color', '#ffffff');
-                root.style.setProperty('--card-bg', '#ffffff');
-                root.style.setProperty('--text-color', '#111111');
-                root.style.setProperty('--border-color', '#e5e7eb');
-            }
-        }
-    </script>
-
-</body>
-</html>
-ard" onclick="toggleSettingSection()">
-                        <div class="tool-icon-shell">
-                            <span>⚙️</span>
-                        </div>
-                        <span class="tool-label">Setting</span>
-                    </div>
+        <!-- Ask Aethel Input Bar -->
+        <div class="prompt-bar">
+            <button class="action-icon-btn" aria-label="Close">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+            <input type="text" placeholder="Ask Aethel">
+            <button class="action-icon-btn" aria-label="Voice input">
+                <div class="mic-waveform">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    <span></span>
                 </div>
-
-                <!-- SETTING section -->
-                <div id="settingSection">
-                    <div class="section-title">SETTING</div>
-                    <div class="settings-row">
-                        <span class="settings-label">🌓 Dark / Light Mode</span>
-                        <label class="switch">
-                            <input type="checkbox" id="themeToggle" onchange="toggleTheme()">
-                            <span class="slider"></span>
-                        </label>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Bottom Chat Input Bar -->
-            <div class="chat-input-bar">
-                <button id="triggerBtn" class="menu-trigger-btn" onclick="toggleMenu()">×</button>
-                <input type="text" class="chat-input" placeholder="Ask Aethel" />
-                <div class="action-icons">
-                    <span class="mic-icon">🎙️</span>
-                    <div class="waveform">
-                        <span></span><span></span><span></span><span></span>
-                    </div>
-                </div>
-            </div>
+            </button>
+            <button class="action-icon-btn" aria-label="Submit" style="color: #3b82f6;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </button>
         </div>
+
     </div>
 
-    <script>
-        function toggleMenu() {
-            const menu = document.getElementById('workCenterMenu');
-            const btn = document.getElementById('triggerBtn');
-            
-            if (menu.classList.contains('hidden')) {
-                menu.classList.remove('hidden');
-                btn.textContent = '×';
-            } else {
-                menu.classList.add('hidden');
-                btn.textContent = '+';
-            }
-        }
-
-        function toggleSettingSection() {
-            const settingSection = document.getElementById('settingSection');
-            settingSection.classList.toggle('active');
-        }
-
-        function toggleTheme() {
-            const isDark = document.getElementById('themeToggle').checked;
-            const root = document.documentElement;
-            
-            if (isDark) {
-                root.style.setProperty('--bg-color', '#111827');
-                root.style.setProperty('--card-bg', '#1f2937');
-                root.style.setProperty('--text-color', '#f9fafb');
-                root.style.setProperty('--border-color', '#374151');
-            } else {
-                root.style.setProperty('--bg-color', '#ffffff');
-                root.style.setProperty('--card-bg', '#ffffff');
-                root.style.setProperty('--text-color', '#111111');
-                root.style.setProperty('--border-color', '#e5e7eb');
-            }
-        }
-    </script>
-
 </body>
-</html>
-onclick="toggleSettingSection()">
-                        <div class="tool-icon-shell">
-                            <span>⚙️</span>
-                        </div>
-                        <span class="tool-label">Setting</span>
-                    </div>
-                </div>
-
-                <!-- SETTING section -->
-                <div id="settingSection">
-                    <div class="section-title">SETTING</div>
-                    <div class="settings-row">
-                        <span class="settings-label">🌓 Dark / Light Mode</span>
-                        <label class="switch">
-                            <input type="checkbox" id="themeToggle" onchange="toggleTheme()">
-                            <span class="slider"></span>
-                        </label>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Bottom Chat Input Bar -->
-            <div class="chat-input-bar">
-                <button id="triggerBtn" class="menu-trigger-btn" onclick="toggleMenu()">×</button>
-                <input type="text" class="chat-input" placeholder="Ask Aethel" />
-                <div class="action-icons">
-                    <span class="mic-icon">🎙️</span>
-                    <div class="waveform">
-                        <span></span><span></span><span></span><span></span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        function toggleMenu() {
-            const menu = document.getElementById('workCenterMenu');
-            const btn = document.getElementById('triggerBtn');
-            
-            if (menu.classList.contains('hidden')) {
-                menu.classList.remove('hidden');
-                btn.textContent = '×';
-            } else {
-                menu.classList.add('hidden');
-                btn.textContent = '+';
-            }
-        }
-
-        function toggleSettingSection() {
-            const settingSection = document.getElementById('settingSection');
-            settingSection.classList.toggle('active');
-        }
-
-        function toggleTheme() {
-            const isDark = document.getElementById('themeToggle').checked;
-            const root = document.documentElement;
-            
-            if (isDark) {
-                root.style.setProperty('--bg-color', '#111827');
-                root.style.setProperty('--card-bg', '#1f2937');
-                root.style.setProperty('--text-color', '#f9fafb');
-                root.style.setProperty('--border-color', '#374151');
-            } else {
-                root.style.setProperty('--bg-color', '#ffffff');
-                root.style.setProperty('--card-bg', '#ffffff');
-                root.style.setProperty('--text-color', '#111111');
-                root.style.setProperty('--border-color', '#e5e7eb');
-            }
-        }
-    </script>
-
-</body>
-</html>
+    </html>
+    
