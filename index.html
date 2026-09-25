@@ -5,30 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Aethel Command Center</title>
     <style>
-        :root {
-            --bg-color: #ffffff;
-            --text-color: #111111;
-            --border-color: #eaeaea;
-            --tray-bg: #ffffff;
-            --card-bg: #f8f9fa;
-            --input-bg: #f1f3f5;
-            --drawer-bg: #121212;
-            --drawer-text: #ffffff;
-            --drawer-sub: #888888;
-        }
-
-        [data-theme="dark"] {
-            --bg-color: #0f0f0f;
-            --text-color: #f1f1f1;
-            --border-color: #222222;
-            --tray-bg: #161616;
-            --card-bg: #222222;
-            --input-bg: #222222;
-            --drawer-bg: #121212;
-            --drawer-text: #ffffff;
-            --drawer-sub: #888888;
-        }
-
         * {
             box-sizing: border-box;
             margin: 0;
@@ -36,30 +12,24 @@
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
 
-        /* Strict Full-Screen Flex Layout to guarantee bottom dock visibility */
-        html, body {
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            transition: background-color 0.3s, color 0.3s;
-        }
-
         body {
+            background-color: #f7f8fa;
+            color: #1a1a1a;
             display: flex;
             flex-direction: column;
+            height: 100vh;
+            height: 100dvh;
+            overflow: hidden;
         }
 
-        /* Header Navigation */
+        /* --- 1. Top Header Navigation --- */
         header {
             display: flex;
             align-items: center;
-            padding: 10px 16px;
-            border-bottom: 1px solid var(--border-color);
-            background-color: var(--bg-color);
-            flex-shrink: 0;
-            z-index: 100;
+            padding: 16px 20px;
+            background-color: #ffffff;
+            border-bottom: 1px solid #eaeaea;
+            gap: 16px;
         }
 
         .menu-btn {
@@ -71,200 +41,130 @@
             justify-content: space-between;
             width: 20px;
             height: 14px;
-            padding: 0;
         }
 
         .menu-btn span {
             display: block;
             height: 2px;
             width: 100%;
-            background-color: var(--text-color);
+            background-color: #1a1a1a;
             border-radius: 2px;
         }
 
-        /* Sliding Navigation Drawer */
-        .drawer-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s ease;
-            z-index: 200;
+        .header-title {
+            font-size: 18px;
+            font-weight: 400;
+            color: #1a1a1a;
         }
 
-        .drawer-overlay.active {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .drawer {
-            position: fixed;
-            top: 0;
-            left: -280px;
-            width: 280px;
-            height: 100%;
-            background-color: var(--drawer-bg);
-            color: var(--drawer-text);
-            transition: left 0.3s ease;
-            z-index: 201;
-            display: flex;
-            flex-direction: column;
-            padding: 24px 16px;
-        }
-
-        .drawer.active {
-            left: 0;
-        }
-
-        .drawer-menu-list {
-            list-style: none;
-            margin-top: 20px;
-            flex-grow: 1;
-        }
-
-        .drawer-menu-list li {
-            padding: 12px 16px;
-            margin-bottom: 8px;
-            border-radius: 12px;
-            background-color: #1e1e1e;
-            cursor: pointer;
-            font-size: 15px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .drawer-recents-title {
-            font-size: 11px;
-            color: var(--drawer-sub);
-            letter-spacing: 1px;
-            margin: 20px 0 10px 4px;
-        }
-
-        .drawer-footer {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding-top: 16px;
-            border-top: 1px solid #222;
-        }
-
-        .user-profile {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: #444;
-            overflow: hidden;
-        }
-
-        .new-chat-btn {
-            background-color: #ffffff;
-            color: #000000;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-        }
-
-        /* Main Viewport Content Area (Scrollable) */
+        /* --- 2. Main Viewport Area --- */
         main {
-            flex: 1 1 auto;
-            overflow-y: auto;
-            padding: 16px;
+            flex: 1;
+            position: relative;
+            background-color: #ffffff;
         }
 
-        /* Bottom Controls Container (Part of normal flow, never clipped) */
-        .bottom-dock {
-            flex-shrink: 0;
-            background-color: var(--tray-bg);
-            border-top: 1px solid var(--border-color);
-            border-top-left-radius: 16px;
-            border-top-right-radius: 16px;
-            padding: 6px 12px 10px 12px;
-            box-shadow: 0 -4px 16px rgba(0,0,0,0.08);
-            z-index: 90;
+        /* --- 3. Floating Operations & Settings Tray --- */
+        .tray-container {
+            position: absolute;
+            bottom: 80px;
+            left: 16px;
+            right: 16px;
+            background-color: #ffffff;
+            border-radius: 24px;
+            padding: 16px 20px 20px 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            border: 1px solid #f0f0f0;
         }
 
         .tray-handle {
-            width: 28px;
-            height: 3px;
-            background-color: #ccc;
+            width: 36px;
+            height: 4px;
+            background-color: #d1d5db;
             border-radius: 2px;
-            margin: 0 auto 4px auto;
+            margin: 0 auto 16px auto;
         }
 
         .section-label {
-            font-size: 7px;
+            font-size: 11px;
             font-weight: 600;
-            letter-spacing: 1px;
-            color: #888;
-            margin-bottom: 3px;
-            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #8e8e93;
+            margin-bottom: 12px;
         }
 
-        /* Operations Grid (5 Cards) */
-        .operations-grid {
+        .tools-grid {
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 4px;
-            margin-bottom: 4px;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
         }
 
-        .op-card {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 4px 2px;
-            text-align: center;
-            cursor: pointer;
+        .tool-card {
+            background-color: #f8f9fa;
+            border: 1px solid #edf0f2;
+            border-radius: 16px;
+            padding: 12px 6px;
             display: flex;
             flex-direction: column;
             align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .tool-card.active {
+            background-color: #fffaf7;
+            border-color: #ff7a45;
+        }
+
+        .tool-icon {
+            font-size: 20px;
+            height: 28px;
+            display: flex;
+            align-items: center;
             justify-content: center;
-            gap: 2px;
         }
 
-        .op-card span:last-child {
-            font-size: 8px;
-            font-weight: 500;
-            color: var(--text-color);
+        .tool-name {
+            font-size: 12px;
+            color: #3a3a3c;
+            font-weight: 400;
         }
 
-        /* Settings Sub-Panel (Hidden by default) */
-        .settings-panel {
-            display: none;
+        .tool-card.active .tool-name {
+            color: #ff5722;
+        }
+
+        /* Settings Toggle Row */
+        .settings-row {
+            display: flex;
             align-items: center;
             justify-content: space-between;
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 4px 8px;
-            margin-bottom: 4px;
-            font-size: 10px;
+            background-color: #f8f9fa;
+            border: 1px solid #edf0f2;
+            border-radius: 16px;
+            padding: 12px 16px;
         }
 
-        .settings-panel.active {
-            display: flex;
-        }
-
-        .settings-label-inner {
+        .settings-left {
             display: flex;
             align-items: center;
-            gap: 6px;
-            color: var(--text-color);
+            gap: 12px;
+            font-size: 14px;
+            color: #3a3a3c;
         }
 
+        .mode-icon {
+            font-size: 16px;
+        }
+
+        /* Toggle Switch */
         .switch {
             position: relative;
             display: inline-block;
-            width: 28px;
-            height: 15px;
+            width: 44px;
+            height: 24px;
         }
 
         .switch input {
@@ -277,251 +177,170 @@
             position: absolute;
             cursor: pointer;
             top: 0; left: 0; right: 0; bottom: 0;
-            background-color: #ccc;
-            transition: 0.3s;
-            border-radius: 15px;
+            background-color: #cbd5e1;
+            transition: .3s;
+            border-radius: 24px;
         }
 
         .slider:before {
             position: absolute;
             content: "";
-            height: 11px;
-            width: 11px;
-            left: 2px;
-            bottom: 2px;
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
             background-color: white;
-            transition: 0.3s;
+            transition: .3s;
             border-radius: 50%;
         }
 
         input:checked + .slider {
-            background-color: #000;
-        }
-
-        [data-theme="dark"] input:checked + .slider {
-            background-color: #fff;
+            background-color: #3b82f6;
         }
 
         input:checked + .slider:before {
-            transform: translateX(13px);
-            background-color: #000;
+            transform: translateX(20px);
         }
 
-        /* Prompt Bar */
-        .prompt-bar {
+        /* --- 4. Bottom Prompt Bar --- */
+        .prompt-dock {
+            position: absolute;
+            bottom: 16px;
+            left: 16px;
+            right: 16px;
+            background-color: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 30px;
+            padding: 10px 16px;
             display: flex;
             align-items: center;
-            background-color: var(--input-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 22px;
-            padding: 5px 10px;
-            gap: 6px;
+            gap: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
         }
 
-        .prompt-close {
-            display: none;
+        .close-icon {
             background: none;
             border: none;
-            color: #ff5252;
-            font-size: 13px;
+            color: #ef4444;
+            font-size: 16px;
             cursor: pointer;
-            align-items: center;
-            padding: 0;
-        }
-
-        .prompt-close.active {
+            font-weight: bold;
             display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px;
+            height: 20px;
         }
 
         .prompt-input {
-            flex-grow: 1;
-            background: none;
+            flex: 1;
             border: none;
             outline: none;
-            color: var(--text-color);
-            font-size: 11px;
+            font-size: 15px;
+            color: #9ca3af;
+            background: transparent;
         }
 
         .prompt-input::placeholder {
-            color: #888;
+            color: #9ca3af;
         }
 
-        .prompt-actions {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .icon-btn {
+        .mic-btn, .waveform {
             background: none;
             border: none;
             cursor: pointer;
             display: flex;
             align-items: center;
-            padding: 2px;
-            font-size: 11px;
         }
 
-        /* Multi-color audio waveform */
-        .waveform {
+        /* Audio Waveform Graphic Bars */
+        .audio-waveform {
             display: flex;
             align-items: center;
-            gap: 2px;
-            height: 10px;
+            gap: 3px;
+            height: 16px;
         }
 
-        .waveform span {
+        .audio-waveform span {
             display: block;
-            width: 2px;
-            border-radius: 1px;
-            animation: pulse 1.2s infinite ease-in-out;
+            width: 3px;
+            border-radius: 2px;
         }
 
-        .waveform span:nth-child(1) { background-color: #3b82f6; height: 4px; animation-delay: 0.1s; }
-        .waveform span:nth-child(2) { background-color: #10b981; height: 9px; animation-delay: 0.3s; }
-        .waveform span:nth-child(3) { background-color: #f59e0b; height: 6px; animation-delay: 0.2s; }
-        .waveform span:nth-child(4) { background-color: #ec4899; height: 10px; animation-delay: 0.4s; }
-
-        @keyframes pulse {
-            0%, 100% { transform: scaleY(0.5); }
-            50% { transform: scaleY(1); }
-        }
+        .bar-1 { height: 8px; background-color: #3b82f6; }
+        .bar-2 { height: 14px; background-color: #10b981; }
+        .bar-3 { height: 10px; background-color: #f59e0b; }
+        .bar-4 { height: 16px; background-color: #ef4444; }
     </style>
 </head>
-<body data-theme="dark">
+<body>
 
-    <!-- Header Navigation -->
+    <!-- Top Header Navigation -->
     <header>
-        <button class="menu-btn" id="menuToggle" aria-label="Toggle Menu">
+        <button class="menu-btn" aria-label="Menu">
+            <span></span>
             <span></span>
             <span></span>
         </button>
+        <h1 class="header-title">Aethel</h1>
     </header>
 
-    <!-- Sliding Navigation Drawer -->
-    <div class="drawer-overlay" id="drawerOverlay"></div>
-    <div class="drawer" id="drawer">
-        <ul class="drawer-menu-list">
-            <li onclick="selectMenu('Chats')">💬 Chats</li>
-            <li onclick="selectMenu('Projects')">📁 Projects</li>
-            <li onclick="selectMenu('Code')">&lt;/&gt; Code</li>
-            <li onclick="selectMenu('Artifacts')">✨ Artifacts</li>
-        </ul>
-        <div class="drawer-recents-title">RECENTS</div>
-        <div class="drawer-footer">
-            <div class="user-profile"></div>
-            <button class="new-chat-btn" onclick="activatePromptClose()">+ New chat</button>
-        </div>
-    </div>
-
-    <!-- Main Viewport Content (Full screen information scrolls inside here) -->
+    <!-- Main Viewport Workspace -->
     <main>
-        <!-- Place your content here -->
-    </main>
+        <!-- Floating Operations & Settings Tray -->
+        <div class="tray-container">
+            <div class="tray-handle"></div>
 
-    <!-- Bottom Operations & Prompt Dock -->
-    <div class="bottom-dock">
-        <div class="tray-handle"></div>
-        <div class="section-label">Operations</div>
-        
-        <!-- Operations Grid (5 Cards) -->
-        <div class="operations-grid">
-            <div class="op-card" onclick="triggerAction('Agents')">
-                <span>🤖</span>
-                <span>Agents</span>
-            </div>
-            <div class="op-card" onclick="triggerAction('Camera')">
-                <span>📷</span>
-                <span>Camera</span>
-            </div>
-            <div class="op-card" onclick="triggerAction('Media')">
-                <span>🎬</span>
-                <span>Media</span>
-            </div>
-            <div class="op-card" onclick="triggerAction('Storage')">
-                <span>🗄️</span>
-                <span>Storage</span>
-            </div>
-            <div class="op-card" onclick="toggleSettingsPanel()">
-                <span>⚙️</span>
-                <span>Setting</span>
-            </div>
-        </div>
-
-        <div class="section-label">Setting</div>
-
-        <!-- Settings Sub-Panel -->
-        <div class="settings-panel" id="settingsPanel">
-            <div class="settings-label-inner">
-                <span>🌓</span>
-                <span>Dark / Light Mode</span>
-            </div>
-            <label class="switch">
-                <input type="checkbox" id="themeToggle" checked onchange="switchTheme()">
-                <span class="slider"></span>
-            </label>
-        </div>
-
-        <!-- Prompt Bar (Chat Box) -->
-        <div class="prompt-bar">
-            <button class="prompt-close" id="promptCloseBtn" onclick="deactivatePromptClose()">×</button>
-            <input type="text" class="prompt-input" id="promptInput" placeholder="What's on your mind boss">
-            <div class="prompt-actions">
-                <button class="icon-btn" title="Voice Input">🎤</button>
-                <div class="waveform">
-                    <span></span><span></span><span></span><span></span>
+            <div class="section-label">TOOLS</div>
+            <div class="tools-grid">
+                <!-- Camera Card -->
+                <div class="tool-card">
+                    <div class="tool-icon">📷</div>
+                    <span class="tool-name">Camera</span>
+                </div>
+                <!-- Agents Card (Active state) -->
+                <div class="tool-card active">
+                    <div class="tool-icon">😊</div>
+                    <span class="tool-name">Agents</span>
+                </div>
+                <!-- Files Card -->
+                <div class="tool-card">
+                    <div class="tool-icon">📎</div>
+                    <span class="tool-name">Files</span>
+                </div>
+                <!-- Drive Card -->
+                <div class="tool-card">
+                    <div class="tool-icon">📁</div>
+                    <span class="tool-name">Drive</span>
                 </div>
             </div>
+
+            <div class="section-label">SETTINGS</div>
+            <div class="settings-row">
+                <div class="settings-left">
+                    <span class="mode-icon">🌗</span>
+                    <span>Dark / Light Mode</span>
+                </div>
+                <label class="switch">
+                    <input type="checkbox">
+                    <span class="slider"></span>
+                </label>
+            </div>
         </div>
-    </div>
 
-    <script>
-        const menuToggle = document.getElementById('menuToggle');
-        const drawer = document.getElementById('drawer');
-        const drawerOverlay = document.getElementById('drawerOverlay');
+        <!-- Bottom Prompt Bar -->
+        <div class="prompt-dock">
+            <button class="close-icon" aria-label="Close">✕</button>
+            <input type="text" class="prompt-input" placeholder="Ask Aethel" readonly>
+            <button class="mic-btn" aria-label="Microphone">🎤</button>
+            <div class="audio-waveform" aria-label="Audio Waveform">
+                <span class="bar-1"></span>
+                <span class="bar-2"></span>
+                <span class="bar-3"></span>
+                <span class="bar-4"></span>
+            </div>
+        </div>
+    </main>
 
-        function toggleDrawer() {
-            drawer.classList.toggle('active');
-            drawerOverlay.classList.toggle('active');
-        }
-
-        menuToggle.addEventListener('click', toggleDrawer);
-        drawerOverlay.addEventListener('click', toggleDrawer);
-
-        function switchTheme() {
-            const body = document.body;
-            const themeToggle = document.getElementById('themeToggle');
-            if (themeToggle.checked) {
-                body.setAttribute('data-theme', 'dark');
-            } else {
-                body.setAttribute('data-theme', 'light');
-            }
-        }
-
-        function toggleSettingsPanel() {
-            const panel = document.getElementById('settingsPanel');
-            panel.classList.toggle('active');
-        }
-
-        function activatePromptClose() {
-            toggleDrawer();
-            document.getElementById('promptCloseBtn').classList.add('active');
-        }
-
-        function deactivatePromptClose() {
-            document.getElementById('promptCloseBtn').classList.remove('active');
-            document.getElementById('promptInput').value = '';
-        }
-
-        function selectMenu(section) {
-            toggleDrawer();
-            activatePromptClose();
-        }
-
-        function triggerAction(actionName) {
-            console.log(actionName + " selected");
-        }
-    </script>
 </body>
-    </html>
-    
+</html>
