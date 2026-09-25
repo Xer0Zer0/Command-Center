@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!D<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -292,7 +292,7 @@
                 <div class="tools-scroll-container">
                     <div class="tool-card">
                         <div class="tool-icon-shell">
-                            <img src="./agent.png" alt="Agents">
+                            <img src="./1000007111.png" alt="Agents">
                         </div>
                         <span class="tool-label">Agents</span>
                     </div>
@@ -315,6 +315,80 @@
                         <span class="tool-label">Storage</span>
                     </div>
                     <div class="tool-card" onclick="toggleSettingSection()">
+                        <div class="tool-icon-shell">
+                            <span>⚙️</span>
+                        </div>
+                        <span class="tool-label">Setting</span>
+                    </div>
+                </div>
+
+                <!-- SETTING section -->
+                <div id="settingSection">
+                    <div class="section-title">SETTING</div>
+                    <div class="settings-row">
+                        <span class="settings-label">🌓 Dark / Light Mode</span>
+                        <label class="switch">
+                            <input type="checkbox" id="themeToggle" onchange="toggleTheme()">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Chat Input Bar -->
+            <div class="chat-input-bar">
+                <button id="triggerBtn" class="menu-trigger-btn" onclick="toggleMenu()">×</button>
+                <input type="text" class="chat-input" placeholder="Ask Aethel" />
+                <div class="action-icons">
+                    <span class="mic-icon">🎙️</span>
+                    <div class="waveform">
+                        <span></span><span></span><span></span><span></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleMenu() {
+            const menu = document.getElementById('workCenterMenu');
+            const btn = document.getElementById('triggerBtn');
+            
+            if (menu.classList.contains('hidden')) {
+                menu.classList.remove('hidden');
+                btn.textContent = '×';
+            } else {
+                menu.classList.add('hidden');
+                btn.textContent = '+';
+            }
+        }
+
+        function toggleSettingSection() {
+            const settingSection = document.getElementById('settingSection');
+            settingSection.classList.toggle('active');
+        }
+
+        function toggleTheme() {
+            const isDark = document.getElementById('themeToggle').checked;
+            const root = document.documentElement;
+            
+            if (isDark) {
+                root.style.setProperty('--bg-color', '#111827');
+                root.style.setProperty('--card-bg', '#1f2937');
+                root.style.setProperty('--text-color', '#f9fafb');
+                root.style.setProperty('--border-color', '#374151');
+            } else {
+                root.style.setProperty('--bg-color', '#ffffff');
+                root.style.setProperty('--card-bg', '#ffffff');
+                root.style.setProperty('--text-color', '#111111');
+                root.style.setProperty('--border-color', '#e5e7eb');
+            }
+        }
+    </script>
+
+</body>
+</html>
+onclick="toggleSettingSection()">
                         <div class="tool-icon-shell">
                             <span>⚙️</span>
                         </div>
