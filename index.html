@@ -36,22 +36,26 @@
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
 
-        body {
+        /* Strict Full-Screen Flex Layout to guarantee bottom dock visibility */
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
             background-color: var(--bg-color);
             color: var(--text-color);
-            height: 100vh;
-            height: 100dvh;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body {
             display: flex;
             flex-direction: column;
-            overflow: hidden;
-            transition: background-color 0.3s, color 0.3s;
         }
 
         /* Header Navigation */
         header {
             display: flex;
             align-items: center;
-            padding: 12px 16px;
+            padding: 10px 16px;
             border-bottom: 1px solid var(--border-color);
             background-color: var(--bg-color);
             flex-shrink: 0;
@@ -168,32 +172,28 @@
             cursor: pointer;
         }
 
-        /* Main Viewport Content Area with proper bottom spacing */
+        /* Main Viewport Content Area (Scrollable) */
         main {
-            flex-grow: 1;
+            flex: 1 1 auto;
             overflow-y: auto;
             padding: 16px;
-            padding-bottom: 150px; /* Leaves enough room so full-screen data isn't hidden under the dock */
         }
 
-        /* Bottom Controls Container */
+        /* Bottom Controls Container (Part of normal flow, never clipped) */
         .bottom-dock {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
+            flex-shrink: 0;
             background-color: var(--tray-bg);
             border-top: 1px solid var(--border-color);
-            border-top-left-radius: 20px;
-            border-top-right-radius: 20px;
-            padding: 6px 12px 12px 12px;
+            border-top-left-radius: 16px;
+            border-top-right-radius: 16px;
+            padding: 6px 12px 10px 12px;
             box-shadow: 0 -4px 16px rgba(0,0,0,0.08);
             z-index: 90;
         }
 
         .tray-handle {
-            width: 32px;
-            height: 4px;
+            width: 28px;
+            height: 3px;
             background-color: #ccc;
             border-radius: 2px;
             margin: 0 auto 4px auto;
@@ -220,7 +220,7 @@
             background-color: var(--card-bg);
             border: 1px solid var(--border-color);
             border-radius: 8px;
-            padding: 5px 2px;
+            padding: 4px 2px;
             text-align: center;
             cursor: pointer;
             display: flex;
@@ -263,8 +263,8 @@
         .switch {
             position: relative;
             display: inline-block;
-            width: 30px;
-            height: 16px;
+            width: 28px;
+            height: 15px;
         }
 
         .switch input {
@@ -279,14 +279,14 @@
             top: 0; left: 0; right: 0; bottom: 0;
             background-color: #ccc;
             transition: 0.3s;
-            border-radius: 16px;
+            border-radius: 15px;
         }
 
         .slider:before {
             position: absolute;
             content: "";
-            height: 12px;
-            width: 12px;
+            height: 11px;
+            width: 11px;
             left: 2px;
             bottom: 2px;
             background-color: white;
@@ -303,7 +303,7 @@
         }
 
         input:checked + .slider:before {
-            transform: translateX(14px);
+            transform: translateX(13px);
             background-color: #000;
         }
 
@@ -313,7 +313,7 @@
             align-items: center;
             background-color: var(--input-bg);
             border: 1px solid var(--border-color);
-            border-radius: 24px;
+            border-radius: 22px;
             padding: 5px 10px;
             gap: 6px;
         }
@@ -323,7 +323,7 @@
             background: none;
             border: none;
             color: #ff5252;
-            font-size: 14px;
+            font-size: 13px;
             cursor: pointer;
             align-items: center;
             padding: 0;
@@ -359,7 +359,7 @@
             display: flex;
             align-items: center;
             padding: 2px;
-            font-size: 12px;
+            font-size: 11px;
         }
 
         /* Multi-color audio waveform */
@@ -414,9 +414,9 @@
         </div>
     </div>
 
-    <!-- Main Viewport Content -->
+    <!-- Main Viewport Content (Full screen information scrolls inside here) -->
     <main>
-        <!-- Place your full screen scrollable content here -->
+        <!-- Place your content here -->
     </main>
 
     <!-- Bottom Operations & Prompt Dock -->
@@ -462,7 +462,7 @@
             </label>
         </div>
 
-        <!-- Prompt Bar -->
+        <!-- Prompt Bar (Chat Box) -->
         <div class="prompt-bar">
             <button class="prompt-close" id="promptCloseBtn" onclick="deactivatePromptClose()">×</button>
             <input type="text" class="prompt-input" id="promptInput" placeholder="What's on your mind boss">
