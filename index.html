@@ -21,9 +21,9 @@
             --bg-color: #0f0f0f;
             --text-color: #f1f1f1;
             --border-color: #222222;
-            --tray-bg: #1a1a1a;
-            --card-bg: #242424;
-            --input-bg: #2a2a2a;
+            --tray-bg: #161616;
+            --card-bg: #222222;
+            --input-bg: #222222;
             --drawer-bg: #121212;
             --drawer-text: #ffffff;
             --drawer-sub: #888888;
@@ -181,9 +181,14 @@
         main {
             flex-grow: 1;
             margin-top: 53px;
-            margin-bottom: 210px;
+            margin-bottom: 230px;
             padding: 16px;
             overflow-y: auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--drawer-sub);
+            font-size: 14px;
         }
 
         /* Bottom Controls Container */
@@ -196,25 +201,25 @@
             border-top: 1px solid var(--border-color);
             border-top-left-radius: 24px;
             border-top-right-radius: 24px;
-            padding: 12px 16px 20px 16px;
-            box-shadow: 0 -4px 16px rgba(0,0,0,0.05);
+            padding: 10px 16px 16px 16px;
+            box-shadow: 0 -4px 16px rgba(0,0,0,0.1);
             z-index: 90;
         }
 
         .tray-handle {
             width: 36px;
             height: 4px;
-            background-color: #ccc;
+            background-color: #555;
             border-radius: 2px;
-            margin: 0 auto 10px auto;
+            margin: 0 auto 8px auto;
         }
 
         .operations-label {
-            font-size: 10px;
+            font-size: 9px;
             font-weight: 600;
-            letter-spacing: 0.8px;
-            color: #888;
-            margin-bottom: 8px;
+            letter-spacing: 1px;
+            color: #777;
+            margin-bottom: 6px;
         }
 
         /* Operations Grid (5 Cards) */
@@ -222,7 +227,7 @@
             display: grid;
             grid-template-columns: repeat(5, 1fr);
             gap: 6px;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
 
         .op-card {
@@ -237,11 +242,6 @@
             align-items: center;
             justify-content: center;
             gap: 4px;
-            transition: transform 0.1s;
-        }
-
-        .op-card:active {
-            transform: scale(0.96);
         }
 
         .op-card span:last-child {
@@ -259,7 +259,7 @@
             border: 1px solid var(--border-color);
             border-radius: 10px;
             padding: 8px 12px;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             font-size: 12px;
         }
 
@@ -280,7 +280,7 @@
             position: absolute;
             cursor: pointer;
             top: 0; left: 0; right: 0; bottom: 0;
-            background-color: #ccc;
+            background-color: #555;
             transition: 0.3s;
             border-radius: 20px;
         }
@@ -298,15 +298,12 @@
         }
 
         input:checked + .slider {
-            background-color: #000;
-        }
-
-        [data-theme="dark"] input:checked + .slider {
             background-color: #fff;
         }
 
         input:checked + .slider:before {
             transform: translateX(16px);
+            background-color: #000;
         }
 
         /* Prompt Bar */
@@ -314,9 +311,10 @@
             display: flex;
             align-items: center;
             background-color: var(--input-bg);
+            border: 1px solid var(--border-color);
             border-radius: 28px;
             padding: 8px 12px;
-            gap: 10px;
+            gap: 8px;
         }
 
         .prompt-close {
@@ -325,7 +323,10 @@
             color: #ff5252;
             font-size: 16px;
             cursor: pointer;
-            padding: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2px;
         }
 
         .prompt-input {
@@ -338,13 +339,13 @@
         }
 
         .prompt-input::placeholder {
-            color: #888;
+            color: #777;
         }
 
         .prompt-actions {
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
         }
 
         .icon-btn {
@@ -353,7 +354,8 @@
             cursor: pointer;
             display: flex;
             align-items: center;
-            padding: 4px;
+            justify-content: center;
+            padding: 2px;
             font-size: 14px;
         }
 
@@ -367,7 +369,7 @@
         .waveform span {
             display: block;
             width: 2px;
-            background-color: #007aff;
+            background-color: #3b82f6;
             border-radius: 1px;
             animation: pulse 1.2s infinite ease-in-out;
         }
@@ -412,7 +414,7 @@
 
     <!-- Main Viewport Content -->
     <main>
-        <!-- Dynamic conversational workspace content goes here -->
+        <div>Aethel Command Center Ready</div>
     </main>
 
     <!-- Bottom Operations & Prompt Dock -->
@@ -420,7 +422,7 @@
         <div class="tray-handle"></div>
         <div class="operations-label">OPERATIONS</div>
         
-        <!-- Operations Grid (5 Cards: Agents, Camera, Media, Storage, Setting) -->
+        <!-- Operations Grid (5 Cards) -->
         <div class="operations-grid">
             <div class="op-card" onclick="selectAgent('Alpha')">
                 <span>🤖</span>
@@ -468,7 +470,6 @@
     </div>
 
     <script>
-        // Drawer toggle logic
         const menuToggle = document.getElementById('menuToggle');
         const drawer = document.getElementById('drawer');
         const drawerOverlay = document.getElementById('drawerOverlay');
@@ -481,7 +482,6 @@
         menuToggle.addEventListener('click', toggleDrawer);
         drawerOverlay.addEventListener('click', toggleDrawer);
 
-        // Theme Switcher Logic
         function switchTheme() {
             const body = document.body;
             const themeToggle = document.getElementById('themeToggle');
@@ -492,13 +492,11 @@
             }
         }
 
-        // Toggle Settings Sub-Panel visibility
         function toggleSettingsPanel() {
             const panel = document.getElementById('settingsPanel');
             panel.style.display = panel.style.display === 'none' ? 'flex' : 'none';
         }
 
-        // Dynamic Header Title Update when Agent is Selected
         function selectAgent(agentName) {
             const titleEl = document.getElementById('headerTitle');
             titleEl.textContent = agentName;
@@ -517,4 +515,5 @@
         }
     </script>
 </body>
-</html>
+        </html>
+        
