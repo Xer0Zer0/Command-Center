@@ -46,7 +46,7 @@
             transition: background-color 0.3s, color 0.3s;
         }
 
-        /* Header Navigation */
+        /* Header Navigation - Title removed */
         header {
             display: flex;
             align-items: center;
@@ -78,13 +78,6 @@
             width: 100%;
             background-color: var(--text-color);
             border-radius: 2px;
-        }
-
-        .header-title {
-            margin-left: 16px;
-            font-size: 16px;
-            font-weight: 500;
-            color: var(--text-color);
         }
 
         /* Sliding Navigation Drawer */
@@ -181,14 +174,9 @@
         main {
             flex-grow: 1;
             margin-top: 53px;
-            margin-bottom: 230px;
+            margin-bottom: 220px;
             padding: 16px;
             overflow-y: auto;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--drawer-sub);
-            font-size: 14px;
         }
 
         /* Bottom Controls Container */
@@ -201,73 +189,85 @@
             border-top: 1px solid var(--border-color);
             border-top-left-radius: 24px;
             border-top-right-radius: 24px;
-            padding: 10px 16px 16px 16px;
-            box-shadow: 0 -4px 16px rgba(0,0,0,0.1);
+            padding: 8px 16px 14px 16px;
+            box-shadow: 0 -4px 16px rgba(0,0,0,0.08);
             z-index: 90;
         }
 
         .tray-handle {
             width: 36px;
             height: 4px;
-            background-color: #555;
+            background-color: #ccc;
             border-radius: 2px;
-            margin: 0 auto 8px auto;
+            margin: 0 auto 6px auto;
         }
 
-        .operations-label {
-            font-size: 9px;
+        .section-label {
+            font-size: 8px;
             font-weight: 600;
             letter-spacing: 1px;
-            color: #777;
-            margin-bottom: 6px;
+            color: #888;
+            margin-bottom: 4px;
+            text-transform: uppercase;
         }
 
         /* Operations Grid (5 Cards) */
         .operations-grid {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
-            gap: 6px;
-            margin-bottom: 8px;
+            gap: 4px;
+            margin-bottom: 6px;
         }
 
         .op-card {
             background-color: var(--card-bg);
             border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 8px 2px;
+            border-radius: 10px;
+            padding: 6px 2px;
             text-align: center;
             cursor: pointer;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 4px;
+            gap: 2px;
         }
 
         .op-card span:last-child {
-            font-size: 10px;
+            font-size: 9px;
             font-weight: 500;
             color: var(--text-color);
         }
 
         /* Settings Sub-Panel */
         .settings-panel {
-            display: flex;
+            display: none;
             align-items: center;
             justify-content: space-between;
             background-color: var(--card-bg);
             border: 1px solid var(--border-color);
             border-radius: 10px;
-            padding: 8px 12px;
-            margin-bottom: 8px;
-            font-size: 12px;
+            padding: 6px 10px;
+            margin-bottom: 6px;
+            font-size: 11px;
+        }
+
+        .settings-panel.active {
+            display: flex;
+        }
+
+        .settings-label-inner {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--text-color);
         }
 
         .switch {
             position: relative;
             display: inline-block;
-            width: 36px;
-            height: 20px;
+            width: 34px;
+            height: 18px;
         }
 
         .switch input {
@@ -280,16 +280,16 @@
             position: absolute;
             cursor: pointer;
             top: 0; left: 0; right: 0; bottom: 0;
-            background-color: #555;
+            background-color: #ccc;
             transition: 0.3s;
-            border-radius: 20px;
+            border-radius: 18px;
         }
 
         .slider:before {
             position: absolute;
             content: "";
-            height: 14px;
-            width: 14px;
+            height: 12px;
+            width: 12px;
             left: 3px;
             bottom: 3px;
             background-color: white;
@@ -298,6 +298,10 @@
         }
 
         input:checked + .slider {
+            background-color: #000;
+        }
+
+        [data-theme="dark"] input:checked + .slider {
             background-color: #fff;
         }
 
@@ -312,21 +316,24 @@
             align-items: center;
             background-color: var(--input-bg);
             border: 1px solid var(--border-color);
-            border-radius: 28px;
-            padding: 8px 12px;
+            border-radius: 26px;
+            padding: 6px 12px;
             gap: 8px;
         }
 
         .prompt-close {
+            display: none;
             background: none;
             border: none;
             color: #ff5252;
-            font-size: 16px;
+            font-size: 15px;
             cursor: pointer;
-            display: flex;
             align-items: center;
-            justify-content: center;
-            padding: 2px;
+            padding: 0;
+        }
+
+        .prompt-close.active {
+            display: flex;
         }
 
         .prompt-input {
@@ -335,17 +342,17 @@
             border: none;
             outline: none;
             color: var(--text-color);
-            font-size: 13px;
+            font-size: 12px;
         }
 
         .prompt-input::placeholder {
-            color: #777;
+            color: #888;
         }
 
         .prompt-actions {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
         }
 
         .icon-btn {
@@ -354,30 +361,29 @@
             cursor: pointer;
             display: flex;
             align-items: center;
-            justify-content: center;
             padding: 2px;
-            font-size: 14px;
+            font-size: 13px;
         }
 
+        /* Multi-color audio waveform */
         .waveform {
             display: flex;
             align-items: center;
             gap: 2px;
-            height: 14px;
+            height: 12px;
         }
 
         .waveform span {
             display: block;
             width: 2px;
-            background-color: #3b82f6;
             border-radius: 1px;
             animation: pulse 1.2s infinite ease-in-out;
         }
 
-        .waveform span:nth-child(1) { height: 6px; animation-delay: 0.1s; }
-        .waveform span:nth-child(2) { height: 12px; animation-delay: 0.3s; }
-        .waveform span:nth-child(3) { height: 8px; animation-delay: 0.2s; }
-        .waveform span:nth-child(4) { height: 14px; animation-delay: 0.4s; }
+        .waveform span:nth-child(1) { background-color: #3b82f6; height: 5px; animation-delay: 0.1s; }
+        .waveform span:nth-child(2) { background-color: #10b981; height: 10px; animation-delay: 0.3s; }
+        .waveform span:nth-child(3) { background-color: #f59e0b; height: 7px; animation-delay: 0.2s; }
+        .waveform span:nth-child(4) { background-color: #ec4899; height: 12px; animation-delay: 0.4s; }
 
         @keyframes pulse {
             0%, 100% { transform: scaleY(0.5); }
@@ -387,13 +393,12 @@
 </head>
 <body data-theme="dark">
 
-    <!-- Header Navigation -->
+    <!-- Header Navigation (Title removed) -->
     <header>
         <button class="menu-btn" id="menuToggle" aria-label="Toggle Menu">
             <span></span>
             <span></span>
         </button>
-        <div class="header-title" id="headerTitle"></div>
     </header>
 
     <!-- Sliding Navigation Drawer -->
@@ -408,23 +413,23 @@
         <div class="drawer-recents-title">RECENTS</div>
         <div class="drawer-footer">
             <div class="user-profile"></div>
-            <button class="new-chat-btn">+ New chat</button>
+            <button class="new-chat-btn" onclick="activatePromptClose()">+ New chat</button>
         </div>
     </div>
 
     <!-- Main Viewport Content -->
     <main>
-        <div>Aethel Command Center Ready</div>
+        <!-- Dynamic content area -->
     </main>
 
     <!-- Bottom Operations & Prompt Dock -->
     <div class="bottom-dock">
         <div class="tray-handle"></div>
-        <div class="operations-label">OPERATIONS</div>
+        <div class="section-label">Operations</div>
         
         <!-- Operations Grid (5 Cards) -->
         <div class="operations-grid">
-            <div class="op-card" onclick="selectAgent('Alpha')">
+            <div class="op-card" onclick="triggerAction('Agents')">
                 <span>🤖</span>
                 <span>Agents</span>
             </div>
@@ -446,9 +451,14 @@
             </div>
         </div>
 
+        <div class="section-label">Setting</div>
+
         <!-- Settings Sub-Panel -->
         <div class="settings-panel" id="settingsPanel">
-            <span>Dark/Light</span>
+            <div class="settings-label-inner">
+                <span>🌓</span>
+                <span>Dark / Light Mode</span>
+            </div>
             <label class="switch">
                 <input type="checkbox" id="themeToggle" checked onchange="switchTheme()">
                 <span class="slider"></span>
@@ -457,14 +467,13 @@
 
         <!-- Prompt Bar -->
         <div class="prompt-bar">
-            <button class="prompt-close" onclick="clearPrompt()">×</button>
+            <button class="prompt-close" id="promptCloseBtn" onclick="deactivatePromptClose()">×</button>
             <input type="text" class="prompt-input" id="promptInput" placeholder="What's on your mind boss">
             <div class="prompt-actions">
                 <button class="icon-btn" title="Voice Input">🎤</button>
                 <div class="waveform">
                     <span></span><span></span><span></span><span></span>
                 </div>
-                <button class="icon-btn" title="Submit">➡️</button>
             </div>
         </div>
     </div>
@@ -494,20 +503,22 @@
 
         function toggleSettingsPanel() {
             const panel = document.getElementById('settingsPanel');
-            panel.style.display = panel.style.display === 'none' ? 'flex' : 'none';
+            panel.classList.toggle('active');
         }
 
-        function selectAgent(agentName) {
-            const titleEl = document.getElementById('headerTitle');
-            titleEl.textContent = agentName;
+        function activatePromptClose() {
+            toggleDrawer();
+            document.getElementById('promptCloseBtn').classList.add('active');
         }
 
-        function clearPrompt() {
+        function deactivatePromptClose() {
+            document.getElementById('promptCloseBtn').classList.remove('active');
             document.getElementById('promptInput').value = '';
         }
 
         function selectMenu(section) {
             toggleDrawer();
+            activatePromptClose();
         }
 
         function triggerAction(actionName) {
@@ -515,5 +526,4 @@
         }
     </script>
 </body>
-        </html>
-        
+</html>
