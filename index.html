@@ -2,9 +2,33 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aethel</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Aethel Command Center</title>
     <style>
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #111111;
+            --border-color: #eaeaea;
+            --tray-bg: #ffffff;
+            --card-bg: #f8f9fa;
+            --input-bg: #f1f3f5;
+            --drawer-bg: #121212;
+            --drawer-text: #ffffff;
+            --drawer-sub: #888888;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #0f0f0f;
+            --text-color: #f1f1f1;
+            --border-color: #222222;
+            --tray-bg: #1a1a1a;
+            --card-bg: #242424;
+            --input-bg: #2a2a2a;
+            --drawer-bg: #121212;
+            --drawer-text: #ffffff;
+            --drawer-sub: #888888;
+        }
+
         * {
             box-sizing: border-box;
             margin: 0;
@@ -13,22 +37,27 @@
         }
 
         body {
-            background-color: #ffffff;
-            color: #111111;
+            background-color: var(--bg-color);
+            color: var(--text-color);
             height: 100vh;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
             overflow: hidden;
+            transition: background-color 0.3s, color 0.3s;
         }
 
-        /* Top Navigation Header */
+        /* Header Navigation */
         header {
             display: flex;
             align-items: center;
-            padding: 16px;
-            gap: 16px;
-            border-bottom: 1px solid #f0f0f0;
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border-color);
+            background-color: var(--bg-color);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
         }
 
         .menu-btn {
@@ -37,255 +66,446 @@
             cursor: pointer;
             display: flex;
             flex-direction: column;
-            gap: 4px;
+            justify-content: space-between;
+            width: 20px;
+            height: 14px;
+            padding: 0;
         }
 
         .menu-btn span {
             display: block;
-            width: 20px;
             height: 2px;
-            background-color: #111111;
+            width: 100%;
+            background-color: var(--text-color);
+            border-radius: 2px;
         }
 
-        h1 {
-            font-size: 18px;
+        .header-title {
+            margin-left: 16px;
+            font-size: 16px;
             font-weight: 500;
+            color: var(--text-color);
         }
 
-        /* Bottom Floating Operations & Prompt Dock */
-        .dock-container {
-            padding: 12px 16px 24px 16px;
+        /* Sliding Navigation Drawer */
+        .drawer-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease;
+            z-index: 200;
+        }
+
+        .drawer-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .drawer {
+            position: fixed;
+            top: 0;
+            left: -280px;
+            width: 280px;
+            height: 100%;
+            background-color: var(--drawer-bg);
+            color: var(--drawer-text);
+            transition: left 0.3s ease;
+            z-index: 201;
             display: flex;
             flex-direction: column;
-            gap: 12px;
-            background: #ffffff;
+            padding: 24px 16px;
         }
 
-        /* Operations Tray */
-        .operations-tray {
-            background: #f8f9fa;
-            border-radius: 20px;
-            padding: 14px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
-            border: 1px solid #f1f3f5;
+        .drawer.active {
+            left: 0;
         }
 
-        .operations-header {
+        .drawer-menu-list {
+            list-style: none;
+            margin-top: 20px;
+            flex-grow: 1;
+        }
+
+        .drawer-menu-list li {
+            padding: 12px 16px;
+            margin-bottom: 8px;
+            border-radius: 12px;
+            background-color: #1e1e1e;
+            cursor: pointer;
+            font-size: 15px;
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            gap: 12px;
+        }
+
+        .drawer-recents-title {
             font-size: 11px;
-            font-weight: 600;
-            color: #8e8e93;
-            letter-spacing: 0.5px;
-            padding: 0 4px;
+            color: var(--drawer-sub);
+            letter-spacing: 1px;
+            margin: 20px 0 10px 4px;
+        }
+
+        .drawer-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 16px;
+            border-top: 1px solid #222;
+        }
+
+        .user-profile {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #444;
+            overflow: hidden;
+        }
+
+        .new-chat-btn {
+            background-color: #ffffff;
+            color: #000000;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        /* Main Viewport Content Area */
+        main {
+            flex-grow: 1;
+            margin-top: 53px;
+            margin-bottom: 180px;
+            padding: 16px;
+            overflow-y: auto;
+        }
+
+        /* Bottom Controls Container */
+        .bottom-dock {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: var(--tray-bg);
+            border-top: 1px solid var(--border-color);
+            border-top-left-radius: 24px;
+            border-top-right-radius: 24px;
+            padding: 12px 16px 24px 16px;
+            box-shadow: 0 -4px 16px rgba(0,0,0,0.05);
+            z-index: 90;
         }
 
         .tray-handle {
-            width: 32px;
-            height: 3px;
-            background-color: #d1d5db;
+            width: 36px;
+            height: 4px;
+            background-color: #ccc;
             border-radius: 2px;
-            align-self: center;
-            margin-bottom: 4px;
+            margin: 0 auto 12px auto;
         }
 
+        /* Operations Grid (5 Cards) */
         .operations-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(5, 1fr);
             gap: 8px;
+            margin-bottom: 12px;
         }
 
         .op-card {
-            background: #ffffff;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
             border-radius: 14px;
-            padding: 10px 6px;
+            padding: 10px 4px;
+            text-align: center;
+            cursor: pointer;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 8px;
-            cursor: pointer;
-            border: 1px solid #edf2f7;
-            transition: all 0.2s ease;
+            justify-content: center;
+            gap: 6px;
+            transition: transform 0.1s;
         }
 
         .op-card:active {
             transform: scale(0.96);
-            background: #f1f3f5;
         }
 
-        /* Agent Icon Shell with Fixed Cropping */
-        .op-icon-shell {
-            width: 44px;
-            height: 44px;
-            border-radius: 12px;
-            overflow: hidden;
+        .op-card span {
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--text-color);
+        }
+
+        /* Settings Sub-Panel */
+        .settings-panel {
             display: flex;
             align-items: center;
-            justify-content: center;
-            background: #f1f3f5;
+            justify-content: space-between;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 10px 14px;
+            margin-bottom: 12px;
+            font-size: 13px;
+        }
+
+        .switch {
             position: relative;
+            display: inline-block;
+            width: 40px;
+            height: 22px;
         }
 
-        .op-icon-shell img {
-            width: 130%;
-            height: 130%;
-            object-fit: cover;
-            object-position: center;
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
         }
 
-        .op-label {
-            font-size: 12px;
-            font-weight: 400;
-            color: #374151;
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #ccc;
+            transition: 0.3s;
+            border-radius: 22px;
         }
 
-        /* Ask Aethel Input Bar */
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: #000;
+        }
+
+        [data-theme="dark"] input:checked + .slider {
+            background-color: #fff;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(18px);
+        }
+
+        /* Prompt Bar */
         .prompt-bar {
             display: flex;
             align-items: center;
-            background: #f8f9fa;
+            background-color: var(--input-bg);
             border-radius: 28px;
-            padding: 8px 12px 8px 16px;
-            border: 1px solid #f1f3f5;
+            padding: 8px 12px;
+            gap: 10px;
+        }
+
+        .prompt-close {
+            background: none;
+            border: none;
+            color: #ff5252;
+            font-size: 16px;
+            cursor: pointer;
+            padding: 4px;
+        }
+
+        .prompt-input {
+            flex-grow: 1;
+            background: none;
+            border: none;
+            outline: none;
+            color: var(--text-color);
+            font-size: 14px;
+        }
+
+        .prompt-input::placeholder {
+            color: #888;
+        }
+
+        .prompt-actions {
+            display: flex;
+            align-items: center;
             gap: 8px;
         }
 
-        .prompt-bar input {
-            flex: 1;
-            border: none;
-            background: transparent;
-            font-size: 15px;
-            color: #111111;
-            outline: none;
-        }
-
-        .prompt-bar input::placeholder {
-            color: #9ca3af;
-        }
-
-        .action-icon-btn {
+        .icon-btn {
             background: none;
             border: none;
             cursor: pointer;
-            width: 32px;
-            height: 32px;
             display: flex;
             align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            color: #6b7280;
+            padding: 4px;
         }
 
-        .action-icon-btn:active {
-            background: #e5e7eb;
-        }
-
-        .mic-waveform {
+        .waveform {
             display: flex;
             align-items: center;
             gap: 2px;
             height: 14px;
         }
 
-        .mic-waveform span {
+        .waveform span {
             display: block;
             width: 2px;
-            background-color: #3b82f6;
+            background-color: #007aff;
             border-radius: 1px;
+            animation: pulse 1.2s infinite ease-in-out;
         }
 
-        .mic-waveform span:nth-child(1) { height: 8px; }
-        .mic-waveform span:nth-child(2) { height: 14px; }
-        .mic-waveform span:nth-child(3) { height: 10px; }
-        .mic-waveform span:nth-child(4) { height: 6px; }
+        .waveform span:nth-child(1) { height: 6px; animation-delay: 0.1s; }
+        .waveform span:nth-child(2) { height: 12px; animation-delay: 0.3s; }
+        .waveform span:nth-child(3) { height: 8px; animation-delay: 0.2s; }
+        .waveform span:nth-child(4) { height: 14px; animation-delay: 0.4s; }
+
+        @keyframes pulse {
+            0%, 100% { transform: scaleY(0.5); }
+            50% { transform: scaleY(1); }
+        }
     </style>
 </head>
-<body>
+<body data-theme="dark">
 
-    <!-- Top Navigation -->
+    <!-- Header Navigation -->
     <header>
-        <button class="menu-btn" aria-label="Menu">
-            <span></span>
+        <button class="menu-btn" id="menuToggle" aria-label="Toggle Menu">
             <span></span>
             <span></span>
         </button>
-        <h1>Aethel</h1>
+        <div class="header-title" id="headerTitle">Aethel</div>
     </header>
 
-    <!-- Center Workspace Area -->
-    <main></main>
-
-    <!-- Bottom Dock -->
-    <div class="dock-container">
-        
-        <!-- Operations Tray -->
-        <div class="operations-tray">
-            <div class="tray-handle"></div>
-            <div class="operations-header">
-                <span>OPERATIONS</span>
-            </div>
-            <div class="operations-grid">
-                
-                <!-- Agents Icon with Custom Cropped Image -->
-                <div class="op-card">
-                    <div class="op-icon-shell">
-                        <img src="./1000007111.png" alt="Agents Logo">
-                    </div>
-                    <span class="op-label">Agents</span>
-                </div>
-
-                <!-- Camera -->
-                <div class="op-card">
-                    <div class="op-icon-shell" style="background: #eef2ff;">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-                    </div>
-                    <span class="op-label">Camera</span>
-                </div>
-
-                <!-- Media -->
-                <div class="op-card">
-                    <div class="op-icon-shell" style="background: #fef3c7;">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-                    </div>
-                    <span class="op-label">Media</span>
-                </div>
-
-                <!-- Storage -->
-                <div class="op-card">
-                    <div class="op-icon-shell" style="background: #f0fdf4;">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
-                    </div>
-                    <span class="op-label">Storage</span>
-                </div>
-
-            </div>
+    <!-- Sliding Navigation Drawer -->
+    <div class="drawer-overlay" id="drawerOverlay"></div>
+    <div class="drawer" id="drawer">
+        <ul class="drawer-menu-list">
+            <li onclick="selectMenu('Chats')">💬 Chats</li>
+            <li onclick="selectMenu('Projects')">📁 Projects</li>
+            <li onclick="selectMenu('Code')">&lt;/&gt; Code</li>
+            <li onclick="selectMenu('Artifacts')">✨ Artifacts</li>
+        </ul>
+        <div class="drawer-recents-title">RECENTS</div>
+        <div class="drawer-footer">
+            <div class="user-profile"></div>
+            <button class="new-chat-btn">+ New chat</button>
         </div>
-
-        <!-- Ask Aethel Input Bar -->
-        <div class="prompt-bar">
-            <button class="action-icon-btn" aria-label="Close">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-            </button>
-            <input type="text" placeholder="Ask Aethel">
-            <button class="action-icon-btn" aria-label="Voice input">
-                <div class="mic-waveform">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </div>
-            </button>
-            <button class="action-icon-btn" aria-label="Submit" style="color: #3b82f6;">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
-            </button>
-        </div>
-
     </div>
 
+    <!-- Main Viewport Content -->
+    <main>
+        <!-- Dynamic conversational workspace content goes here -->
+    </main>
+
+    <!-- Bottom Operations & Prompt Dock -->
+    <div class="bottom-dock">
+        <div class="tray-handle"></div>
+        
+        <!-- Operations Grid (5 Cards) -->
+        <div class="operations-grid">
+            <div class="op-card" onclick="selectAgent('Alpha')">
+                <span>🤖</span>
+                <span>Agents</span>
+            </div>
+            <div class="op-card" onclick="triggerAction('Camera')">
+                <span>📷</span>
+                <span>Camera</span>
+            </div>
+            <div class="op-card" onclick="triggerAction('Media')">
+                <span>🎬</span>
+                <span>Media</span>
+            </div>
+            <div class="op-card" onclick="triggerAction('Storage')">
+                <span>🗄️</span>
+                <span>Storage</span>
+            </div>
+            <div class="op-card" onclick="toggleSettingsPanel()">
+                <span>⚙️</span>
+                <span>Setting</span>
+            </div>
+        </div>
+
+        <!-- Settings Sub-Panel -->
+        <div class="settings-panel" id="settingsPanel">
+            <span>Dark/Light</span>
+            <label class="switch">
+                <input type="checkbox" id="themeToggle" checked onchange="switchTheme()">
+                <span class="slider"></span>
+            </label>
+        </div>
+
+        <!-- Prompt Bar -->
+        <div class="prompt-bar">
+            <button class="prompt-close" onclick="clearPrompt()">×</button>
+            <input type="text" class="prompt-input" id="promptInput" placeholder="What's on your mind boss">
+            <div class="prompt-actions">
+                <button class="icon-btn" title="Voice Input">🎤</button>
+                <div class="waveform">
+                    <span></span><span></span><span></span><span></span>
+                </div>
+                <button class="icon-btn" title="Submit">➡️</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Drawer toggle logic
+        const menuToggle = document.getElementById('menuToggle');
+        const drawer = document.getElementById('drawer');
+        const drawerOverlay = document.getElementById('drawerOverlay');
+
+        function toggleDrawer() {
+            drawer.classList.toggle('active');
+            drawerOverlay.classList.toggle('active');
+        }
+
+        menuToggle.addEventListener('click', toggleDrawer);
+        drawerOverlay.addEventListener('click', toggleDrawer);
+
+        // Theme Switcher Logic
+        function switchTheme() {
+            const body = document.body;
+            const themeToggle = document.getElementById('themeToggle');
+            if (themeToggle.checked) {
+                body.setAttribute('data-theme', 'dark');
+            } else {
+                body.setAttribute('data-theme', 'light');
+            }
+        }
+
+        // Toggle Settings Sub-Panel visibility if needed
+        function toggleSettingsPanel() {
+            const panel = document.getElementById('settingsPanel');
+            panel.style.display = panel.style.display === 'none' ? 'flex' : 'none';
+        }
+
+        // Dynamic Header Title Update when Agent is Selected
+        function selectAgent(agentName) {
+            const titleEl = document.getElementById('headerTitle');
+            titleEl.textContent = agentName;
+        }
+
+        function clearPrompt() {
+            document.getElementById('promptInput').value = '';
+        }
+
+        function selectMenu(section) {
+            toggleDrawer();
+        }
+
+        function triggerAction(actionName) {
+            console.log(actionName + " selected");
+        }
+    </script>
 </body>
-                        </html>
-                        
+    </html>
+    
