@@ -1,0 +1,36 @@
+name: Supabase Keep-Alive
+
+on:
+  schedule:
+    # Runs every 3 days at midnight UTC
+    - cron: '0 0 */3 * *'
+  workflow_dispatch: # Allows manual trigger from GitHub Actions tab
+
+jobs:
+  ping-supabase:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Ping Request to Supabase
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: |
+          if [ -z "$SUPABASE_URL" ]; then
+            echo "Error: SUPABASE_URL secret is not set."
+            exit 1
+          fi
+          
+          echo "Pinging Supabase project..."
+          response=$(curl -s -o /dev/null -w "%{http_code}" \
+            -H "apikey: $SUPABASE_ANON_KEY" \
+            -H "Authorization: Bearer $SUPABASE_ANON_KEY" \
+            "$SUPABASE_URL/rest/v1/")
+            
+          echo "HTTP Response Code: $response"
+          if [ "$response" -eq 200 ] || [ "$response" -eq 401 ]; then
+            echo "Successfully pinged Supabase!"
+          else
+            echo "Received unexpected response code: $response"
+            exit 1
+          fi
+          
