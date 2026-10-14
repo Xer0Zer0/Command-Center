@@ -1,13 +1,17 @@
 module.exports = {
   apps: [
     {
-      name: "aethel-agent",
-      script: "command-core/aethel-core/3kig-backend/server.js",
-      instances: "max",
-      exec_mode: "cluster",
+      name: "aethel-local-core",
+      cwd: __dirname,
+      script: "app.js",
+      instances: 1,
+      exec_mode: "fork",
+      autorestart: true,
+      watch: false,
+      max_memory_restart: "512M",
       env: {
-        PORT: 3001,
-        NODE_ENV: "production"
+        NODE_ENV: "production",
+        PORT: 9999
       }
     }
   ]
